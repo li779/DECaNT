@@ -393,10 +393,18 @@ void cnt_mesh::add_tube_in_xz(){
   const float pi = 3.14159265358979323846;
 
   tubes.push_back(tube());
-  tube& my_tube = tubes.back();
+  tube& my_tube1 = tubes.back();
+
+  tubes.push_back(tube());
+  tube& my_tube2 = tubes.back();
+
+  tubes.push_back(tube());
+  tube& my_tube3 = tubes.back();
 
   int d = std::rand()%_tube_section_collision_shapes.size(); // index related to the diameter of the tube
-  my_tube.diameter = _tube_diameter[d];
+  my_tube1.diameter = _tube_diameter[d];
+  my_tube2.diameter = _tube_diameter[d];
+  my_tube3.diameter = _tube_diameter[d];
   
   int l = std::rand()%_tube_length.size(); // index related to the length of the tube
   float length = _tube_length[l];
@@ -440,19 +448,29 @@ void cnt_mesh::add_tube_in_xz(){
 
 
     // create rigid bodies
-    my_tube.bodies.push_back(createRigidBody(mass,startTransform,colShape));	// no static object
+    my_tube1.bodies.push_back(createRigidBody(mass,startTransform,colShape));	// no static object
+    my_tube2.bodies.push_back(createRigidBody(mass,startTransform,colShape));	// no static object
+    my_tube3.bodies.push_back(createRigidBody(mass,startTransform,colShape));	// no static object
     // my_tube.bodies.back()->setMassProps(mass,btVector3(1,0,1)); // turn off rotation along the y-axis of the cylinder shapes
-    my_tube.body_length.push_back(sec_length_plus_distances);
+    my_tube1.body_length.push_back(sec_length_plus_distances);
+    my_tube2.body_length.push_back(sec_length_plus_distances);
+    my_tube3.body_length.push_back(sec_length_plus_distances);
 
-    c_length += my_tube.body_length.back();
+    c_length += my_tube1.body_length.back();
   }
 
-  my_tube.length = c_length;
+  my_tube1.length = c_length;
+  my_tube2.length = c_length;
+  my_tube3.length = c_length;
 
   //add N-1 constraints between the rigid bodies
-  for(int i=0;i<my_tube.bodies.size()-1;++i) {
-    btRigidBody* b1 = my_tube.bodies[i];
-    btRigidBody* b2 = my_tube.bodies[i+1];
+  for(int i=0;i<my_tube1.bodies.size()-1;++i) {
+    btRigidBody* b1 = my_tube1.bodies[i];
+    btRigidBody* b2 = my_tube1.bodies[i+1];
+    btRigidBody* b3 = my_tube2.bodies[i];
+    btRigidBody* b4 = my_tube2.bodies[i+1];
+    btRigidBody* b5 = my_tube3.bodies[i];
+    btRigidBody* b6 = my_tube3.bodies[i+1];
     
     // // spring constraint
     // btPoint2PointConstraint* centerSpring = new btPoint2PointConstraint(*b1, *b2, btVector3(0,(my_tube.body_length[i])/2,0), btVector3(0,-(my_tube.body_length[i+1])/2,0));
@@ -464,12 +482,14 @@ void cnt_mesh::add_tube_in_xz(){
     btTransform frameInA, frameInB;
     frameInA = btTransform::getIdentity();
     frameInA.getBasis().setEulerZYX(1, 0, 1);
-    frameInA.setOrigin(btVector3(0,my_tube.body_length[i]/2,0));
+    frameInA.setOrigin(btVector3(0,my_tube1.body_length[i]/2,0));
     frameInB = btTransform::getIdentity();
     frameInB.getBasis().setEulerZYX(1,0, 1);
-    frameInB.setOrigin(btVector3(0,-my_tube.body_length[i+1]/2,0));
+    frameInB.setOrigin(btVector3(0,-my_tube1.body_length[i+1]/2,0));
 
     btConeTwistConstraint* centerSpring = new btConeTwistConstraint(*b1, *b2, frameInA, frameInB);
+    btConeTwistConstraint* centerSpring2 = new btConeTwistConstraint(*b3, *b4, frameInA, frameInB);
+    btConeTwistConstraint* centerSpring3 = new btConeTwistConstraint(*b5, *b6, frameInA, frameInB);
     centerSpring->setLimit(
                             0, // _swingSpan1
                             0, // _swingSpan2
@@ -481,7 +501,9 @@ void cnt_mesh::add_tube_in_xz(){
 
 
     m_dynamicsWorld->addConstraint(centerSpring,false);
-    my_tube.constraints.push_back(centerSpring);
+    my_tube1.constraints.push_back(centerSpring);
+    my_tube2.constraints.push_back(centerSpring2);
+    my_tube3.constraints.push_back(centerSpring3);
   }
 
 
