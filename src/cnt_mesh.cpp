@@ -388,7 +388,7 @@ void cnt_mesh::add_tube() {
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-// this method adds a tube in the xz plane
+// this method adds a tube (bundle) in the xz plane
 void cnt_mesh::add_tube_in_xz() {
 
 	const float pi = 3.14159265358979323846;
@@ -402,10 +402,29 @@ void cnt_mesh::add_tube_in_xz() {
 	tubes.push_back(tube());
 	tube& my_tube3 = tubes.back();
 
+  tubes.push_back(tube());
+	tube& my_tube4 = tubes.back();
+
+  tubes.push_back(tube());
+	tube& my_tube5 = tubes.back();
+
+  tubes.push_back(tube());
+	tube& my_tube6 = tubes.back();
+
+  tubes.push_back(tube());
+	tube& my_tube7 = tubes.back();
+
 	int d = std::rand() % _tube_section_collision_shapes.size(); // index related to the diameter of the tube
+  // We will add 7 tubes at a time to adhere to the hexagonally packed bundle morphology
+  // Tube 1 will be the center tube, and tubes 2-7 will utilize a hinge constraint to attach to tube 1
 	my_tube1.diameter = _tube_diameter[d];
 	my_tube2.diameter = _tube_diameter[d];
 	my_tube3.diameter = _tube_diameter[d];
+  my_tube4.diameter = _tube_diameter[d];
+	my_tube5.diameter = _tube_diameter[d];
+	my_tube6.diameter = _tube_diameter[d];
+  my_tube7.diameter = _tube_diameter[d];
+
 
 	int l = std::rand() % _tube_length.size(); // index related to the length of the tube
 	float length = _tube_length[l];
@@ -452,10 +471,18 @@ void cnt_mesh::add_tube_in_xz() {
 		my_tube1.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
 		my_tube2.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
 		my_tube3.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
+    my_tube4.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
+		my_tube5.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
+		my_tube6.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
+    my_tube7.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
 		// my_tube.bodies.back()->setMassProps(mass,btVector3(1,0,1)); // turn off rotation along the y-axis of the cylinder shapes
 		my_tube1.body_length.push_back(sec_length_plus_distances);
 		my_tube2.body_length.push_back(sec_length_plus_distances);
 		my_tube3.body_length.push_back(sec_length_plus_distances);
+		my_tube4.body_length.push_back(sec_length_plus_distances);
+		my_tube5.body_length.push_back(sec_length_plus_distances);
+		my_tube6.body_length.push_back(sec_length_plus_distances);
+    my_tube7.body_length.push_back(sec_length_plus_distances);
 
 		c_length += my_tube1.body_length.back();
 	}
@@ -472,6 +499,15 @@ void cnt_mesh::add_tube_in_xz() {
 		btRigidBody* b4 = my_tube2.bodies[i + 1];
 		btRigidBody* b5 = my_tube3.bodies[i];
 		btRigidBody* b6 = my_tube3.bodies[i + 1];
+    btRigidBody* b7 = my_tube4.bodies[i];
+		btRigidBody* b8 = my_tube4.bodies[i + 1];
+		btRigidBody* b9 = my_tube5.bodies[i];
+		btRigidBody* b10 = my_tube5.bodies[i + 1];
+		btRigidBody* b11 = my_tube6.bodies[i];
+		btRigidBody* b12 = my_tube6.bodies[i + 1];
+		btRigidBody* b13 = my_tube7.bodies[i];
+		btRigidBody* b14 = my_tube7.bodies[i + 1];
+
 
 		// // spring constraint
 		// btPoint2PointConstraint* centerSpring = new btPoint2PointConstraint(*b1, *b2, btVector3(0,(my_tube.body_length[i])/2,0), btVector3(0,-(my_tube.body_length[i+1])/2,0));
@@ -491,6 +527,10 @@ void cnt_mesh::add_tube_in_xz() {
 		btConeTwistConstraint* centerSpring = new btConeTwistConstraint(*b1, *b2, frameInA, frameInB);
 		btConeTwistConstraint* centerSpring2 = new btConeTwistConstraint(*b3, *b4, frameInA, frameInB);
 		btConeTwistConstraint* centerSpring3 = new btConeTwistConstraint(*b5, *b6, frameInA, frameInB);
+    btConeTwistConstraint* centerSpring4 = new btConeTwistConstraint(*b7, *b8, frameInA, frameInB);
+		btConeTwistConstraint* centerSpring5 = new btConeTwistConstraint(*b9, *b10, frameInA, frameInB);
+		btConeTwistConstraint* centerSpring6 = new btConeTwistConstraint(*b11, *b12, frameInA, frameInB);
+    btConeTwistConstraint* centerSpring7 = new btConeTwistConstraint(*b13, *b14, frameInA, frameInB);
 		centerSpring->setLimit(
 			0, // _swingSpan1
 			0, // _swingSpan2
@@ -506,27 +546,85 @@ void cnt_mesh::add_tube_in_xz() {
 		frameInB = btTransform::getIdentity();
 		frameInB.setOrigin(btVector3(0, 0, 0));
 
+    //The hinge constraints connect each of the segments in tubes 2-7 to the corresponding
+    //segment on tube 1
+
 		btHingeConstraint* circleSpring = new btHingeConstraint(*b3, *b1, frameInA, frameInB);
 		btHingeConstraint* circleSpring2 = new btHingeConstraint(*b5, *b1, frameInA, frameInB);
-		btHingeConstraint* circleSpring3 = new btHingeConstraint(*b4, *b2, frameInA, frameInB);
-		btHingeConstraint* circleSpring4 = new btHingeConstraint(*b6, *b2, frameInA, frameInB);
+		btHingeConstraint* circleSpring3 = new btHingeConstraint(*b7, *b1, frameInA, frameInB);
+		btHingeConstraint* circleSpring4 = new btHingeConstraint(*b9, *b1, frameInA, frameInB);
+		btHingeConstraint* circleSpring5 = new btHingeConstraint(*b11, *b1, frameInA, frameInB);
+		btHingeConstraint* circleSpring6 = new btHingeConstraint(*b13, *b1, frameInA, frameInB);
+		btHingeConstraint* circleSpring7 = new btHingeConstraint(*b4, *b2, frameInA, frameInB);
+		btHingeConstraint* circleSpring8 = new btHingeConstraint(*b6, *b2, frameInA, frameInB);
+		btHingeConstraint* circleSpring9 = new btHingeConstraint(*b8, *b2, frameInA, frameInB);
+		btHingeConstraint* circleSpring10 = new btHingeConstraint(*b10, *b2, frameInA, frameInB);
+    btHingeConstraint* circleSpring11 = new btHingeConstraint(*b12, *b2, frameInA, frameInB);
+		btHingeConstraint* circleSpring12 = new btHingeConstraint(*b14, *b2, frameInA, frameInB);
 
 
 		m_dynamicsWorld->addConstraint(centerSpring, false);
 		m_dynamicsWorld->addConstraint(centerSpring2, false);
 		m_dynamicsWorld->addConstraint(centerSpring3, false);
+    m_dynamicsWorld->addConstraint(centerSpring4, false);
+		m_dynamicsWorld->addConstraint(centerSpring5, false);
+		m_dynamicsWorld->addConstraint(centerSpring6, false);
+    m_dynamicsWorld->addConstraint(centerSpring7, false);
 		my_tube1.constraints.push_back(centerSpring);
 		my_tube2.constraints.push_back(centerSpring2);
 		my_tube3.constraints.push_back(centerSpring3);
+    my_tube4.constraints.push_back(centerSpring4);
+		my_tube5.constraints.push_back(centerSpring5);
+		my_tube6.constraints.push_back(centerSpring6);
+    my_tube7.constraints.push_back(centerSpring7);
 
 		m_dynamicsWorld->addConstraint(circleSpring, false);
 		m_dynamicsWorld->addConstraint(circleSpring2, false);
 		m_dynamicsWorld->addConstraint(circleSpring3, false);
 		m_dynamicsWorld->addConstraint(circleSpring4, false);
+		m_dynamicsWorld->addConstraint(circleSpring5, false);
+		m_dynamicsWorld->addConstraint(circleSpring6, false);
+		m_dynamicsWorld->addConstraint(circleSpring7, false);
+		m_dynamicsWorld->addConstraint(circleSpring8, false);
+		m_dynamicsWorld->addConstraint(circleSpring9, false);
+		m_dynamicsWorld->addConstraint(circleSpring10, false);
+		m_dynamicsWorld->addConstraint(circleSpring11, false);
+		m_dynamicsWorld->addConstraint(circleSpring12, false);
+
+    //tube 1 has 12 hinge constraints because it is the central CNT
 		my_tube1.constraints.push_back(circleSpring);
-		my_tube2.constraints.push_back(circleSpring2);
-		my_tube3.constraints.push_back(circleSpring3);
-		my_tube3.constraints.push_back(circleSpring4);
+    my_tube1.constraints.push_back(circleSpring2);
+    my_tube1.constraints.push_back(circleSpring3);
+    my_tube1.constraints.push_back(circleSpring4);
+    my_tube1.constraints.push_back(circleSpring5);
+    my_tube1.constraints.push_back(circleSpring6);
+    my_tube1.constraints.push_back(circleSpring7);
+    my_tube1.constraints.push_back(circleSpring8);
+    my_tube1.constraints.push_back(circleSpring9);
+    my_tube1.constraints.push_back(circleSpring10);
+    my_tube1.constraints.push_back(circleSpring11);
+    my_tube1.constraints.push_back(circleSpring12);
+
+    //All other tubes have just two hinge constraints
+
+		my_tube2.constraints.push_back(circleSpring);
+    my_tube2.constraints.push_back(circleSpring7);
+
+		my_tube3.constraints.push_back(circleSpring2);
+		my_tube3.constraints.push_back(circleSpring8);
+
+    my_tube4.constraints.push_back(circleSpring3);
+    my_tube4.constraints.push_back(circleSpring9);
+
+    my_tube5.constraints.push_back(circleSpring4);
+    my_tube5.constraints.push_back(circleSpring10);
+
+    my_tube6.constraints.push_back(circleSpring5);
+    my_tube6.constraints.push_back(circleSpring11);
+
+    my_tube7.constraints.push_back(circleSpring6);
+    my_tube7.constraints.push_back(circleSpring12);
+
 	}
 
 
