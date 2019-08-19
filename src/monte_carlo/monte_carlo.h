@@ -846,7 +846,7 @@ private:
 
 
 	  std::stringstream filename;
-	  filename  << "mean_square_displacement.dat";
+	  filename  << _output_directory.path() / "mean_square_displacement.dat";
 	  std::ofstream file(filename.str().c_str(), std::ios::out);
 
 	  file << std::scientific << std::showpos << std::scientific;
@@ -856,8 +856,10 @@ private:
 
 	  unsigned num_left = p_list.size();
 	  std::cout << num_left;
+	  unsigned time = 0;
 	  while (num_left > 0) {
 		  double total_square_displace = 0;
+		
 
 		  for (unsigned i = 0; i < num_left;) {
 			  if (p_list[i].pos(1) >= y1) {
@@ -880,7 +882,8 @@ private:
 				  i++;
 			  }
 		  }
-		  std::cout << "\r" << num_left<<"  ";
+		  time++;
+		  std::cout << "\r" <<"Number of particle left: " <<num_left<<" Simulation time: "<< time;
 		  file << "   " << double(total_square_displace/num_left) << "   \n";
 	  }
 	  
