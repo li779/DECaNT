@@ -818,8 +818,11 @@ private:
     file.close();
   }
 
-  // this function, adds a particle from the left contact, tracks its position while it has not entered the right
-  // contact and saves its position
+  // This method calculate mean square displacement of num_pop particles in the domain with respect to each time step.
+  // It uses same methodology of track particle that put all partcles in the left contact and track it until reach right contact.
+  // It outputs a file called mean_square_displacement.dat which records mean square displacement for every time step in the output folder
+  // parameters are: dt - time step in second (used in step function)
+  //                 num_pop - number of particles added initially to the domain
   void calc_diffusion(double dt, int num_pop) {
 
 	  // assert(_particle_list.empty() && "particle list is not empty!");
