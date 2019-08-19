@@ -60,6 +60,10 @@ struct cnt_mesh : public CommonRigidBodyBase
 	// list to store all the tubes that we will in the simulation
 	std::list<tube> tubes;
 
+	struct bundle {
+		std::list<tube> tubes;
+	};
+
 	btVector3 drop_coordinate(); // this method gives the appropriate coordinate for releasing the next tube
 
   public:
@@ -138,6 +142,9 @@ struct cnt_mesh : public CommonRigidBodyBase
 
 	// this method adds a tube in the xz plane
 	void add_tube_in_xz();
+
+	// this method adds a bundle in the xz plane
+	void add_bundle_in_xz();
 
 	// this method creates an open top container for the cnts
 	void create_container();

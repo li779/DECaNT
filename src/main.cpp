@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
 			// add this many cnt's at a time
 			for (int i=0; i<number_of_tubes_added_together; i++)
 			{
-				example->add_tube_in_xz();
+				example->add_bundle_in_xz();
 			}
 			example->save_tubes(number_of_unsaved_tubes);
 			example->freeze_tubes(number_of_active_tubes); // keep only this many of tubes active (for example 100) and freeze the rest of the tubes
