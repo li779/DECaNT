@@ -493,7 +493,7 @@ void cnt_mesh::add_tube_in_xz() {
 
 
 
-// this method adds a tube (bundle) in the xz plane
+// this method adds bundle in the xz plane
 void cnt_mesh::add_bundle_in_xz() {
 
 	const float pi = 3.14159265358979323846;
@@ -736,7 +736,110 @@ void cnt_mesh::add_bundle_in_xz() {
 	// generate the graphical representation of the object
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 
-};
+}
+
+
+// TODO
+// this method adds parallel tube like blinds in the xz plane
+void cnt_mesh::add_parallel_tube_in_xz() {
+	const float pi = 3.14159265358979323846;
+
+	tubes.push_back(tube());
+	tube& my_tube = tubes.back();
+
+	int d = std::rand() % _tube_section_collision_shapes.size(); // index related to the diameter of the tube
+	my_tube.diameter = _tube_diameter[d];
+
+	int l = std::rand() % _tube_length.size(); // index related to the length of the tube
+	float length = _tube_length[l];
+
+	// set drop orientation of the tube
+	float angle = 0;
+	btVector3 ax(std::cos(angle), 0, std::sin(angle)); // axis vector for the tube sections
+
+	// set a quaternion to determine the orientation of tube sections, note that the initial orientation of the tube sections are along the y-axis
+	btQuaternion qt;
+	btVector3 q_axis = ax.rotate(btVector3(0, 1, 0), pi / 2); // axis vector for the quaternion describing orientation of tube sections
+	qt.setRotation(q_axis, pi / 2);
+
+	btVector3 drop_coor = drop_coordinate();
+	// btVector3 drop_coor(0,Ly,0);
+
+	// set the density of the material making the tubes
+	btScalar density = 1;
+
+	// Re-using the same collision is better for memory usage and performance
+	btCollisionShape* colShape = nullptr;
+
+	float c_length = 0;
+
+	while (c_length < length) {
+		int sl = std::rand() % _section_length.size();
+		btScalar sec_length_plus_distances = 1. * _section_length[sl];
+
+		colShape = _tube_section_collision_shapes[d][sl];
+
+		btScalar mass = density * _section_length[sl];
+
+		btScalar ax_loc = c_length + sec_length_plus_distances / 2. - length / 2;
+
+		btVector3 origin(ax_loc * ax + drop_coor);
+
+		// create a btTransform that discribes the orientation and location of the rigidBody
+		btTransform startTransform;
+		startTransform.setOrigin(origin);
+		startTransform.setRotation(qt);
+
+
+		// create rigid bodies
+		my_tube.bodies.push_back(createRigidBody(mass, startTransform, colShape));	// no static object
+		// my_tube.bodies.back()->setMassProps(mass,btVector3(1,0,1)); // turn off rotation along the y-axis of the cylinder shapes
+		my_tube.body_length.push_back(sec_length_plus_distances);
+
+		c_length += my_tube.body_length.back();
+	}
+
+	my_tube.length = c_length;
+
+	//add N-1 constraints between the rigid bodies
+	for (int i = 0; i < my_tube.bodies.size() - 1; ++i) {
+		btRigidBody* b1 = my_tube.bodies[i];
+		btRigidBody* b2 = my_tube.bodies[i + 1];
+
+		// // spring constraint
+		// btPoint2PointConstraint* centerSpring = new btPoint2PointConstraint(*b1, *b2, btVector3(0,(my_tube.body_length[i])/2,0), btVector3(0,-(my_tube.body_length[i+1])/2,0));
+		// centerSpring->m_setting.m_damping = 1.5; //the damping value for the constraint controls how stiff the constraint is. The default value is 1.0
+		// centerSpring->m_setting.m_impulseClamp = 0; //The m_impulseClamp value controls how quickly the dynamic rigid body comes to rest. The defualt value is 0.0
+
+
+		// cone constarint
+		btTransform frameInA, frameInB;
+		frameInA = btTransform::getIdentity();
+		frameInA.getBasis().setEulerZYX(1, 0, 1);
+		frameInA.setOrigin(btVector3(0, my_tube.body_length[i] / 2, 0));
+		frameInB = btTransform::getIdentity();
+		frameInB.getBasis().setEulerZYX(1, 0, 1);
+		frameInB.setOrigin(btVector3(0, -my_tube.body_length[i + 1] / 2, 0));
+
+		btConeTwistConstraint* centerSpring = new btConeTwistConstraint(*b1, *b2, frameInA, frameInB);
+		centerSpring->setLimit(
+			0, // _swingSpan1
+			0, // _swingSpan2
+			pi / 2, // _twistSpan
+			1, // _softness
+			0.3000000119F, // _biasFactor
+			1.0F // _relaxationFactor
+		);
+
+
+		m_dynamicsWorld->addConstraint(centerSpring, false);
+		my_tube.constraints.push_back(centerSpring);
+	}
+
+
+	// generate the graphical representation of the object
+	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+}
 
 // make tubes static in the simulation and only leave number_of_active_tubes as dynamic in the simulation.
 void cnt_mesh::save_tubes(int number_of_unsaved_tubes) {

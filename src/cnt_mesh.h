@@ -146,6 +146,9 @@ struct cnt_mesh : public CommonRigidBodyBase
 	// this method adds a bundle in the xz plane
 	void add_bundle_in_xz();
 
+	// this method adds parallel tube like blinds in the xz plane
+	void add_parallel_tube_in_xz();
+
 	// this method creates an open top container for the cnts
 	void create_container();
 
