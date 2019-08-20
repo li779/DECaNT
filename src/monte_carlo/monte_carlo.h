@@ -819,7 +819,7 @@ private:
   }
 
   // This method calculate mean square displacement of num_pop particles in the domain with respect to each time step.
-  // It uses same methodology of track particle that put all partcles in the left contact and track it until reach right contact.
+  // It uses same methodology of track_particle that puts all partcles in the left contact and tracks them until it reaches right contact.
   // It outputs a file called mean_square_displacement.dat which records mean square displacement for every time step in the output folder
   // parameters are: dt - time step in second (used in step function)
   //                 num_pop - number of particles added initially to the domain
@@ -849,7 +849,8 @@ private:
 
 
 	  std::stringstream filename;
-	  filename  << _output_directory.path() / "mean_square_displacement.dat";
+	  std::string base = _output_directory.path() / "mean_square_displacement.dat";
+	  filename  << base;
 	  std::ofstream file(filename.str().c_str(), std::ios::out);
 
 	  file << std::scientific << std::showpos << std::scientific;
