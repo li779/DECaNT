@@ -29,6 +29,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::fstream position_file; // this is the output file that the coordinate of cnt sections are written into.
 	std::fstream orientation_file; // this is the output file that the orientation of cnt sections are written into.
 	std::fstream length_file; // this is the output file that the length of cnt sections are written into.
+	std::fstream chirality_file; // this is the output file that the chirality of cnt sections are written into.
 	int number_of_saved_tubes; // this is the total number of cnts whos coordinates are saved into output file.
 	int number_of_cnt_output_files; // this is the number of output files that the cnt coordinates has been written into.
 
@@ -43,6 +44,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::vector<float> _tube_diameter;
 	std::vector<float> _section_length;
 	std::vector<float> _tube_length;
+	std::vector<std::vector<int>> _tube_chirality;
 	
 	std::vector<std::vector<btCollisionShape*>> _tube_section_collision_shapes; // first index determines the diameter, the second index determines the length of the section
 
@@ -51,6 +53,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 		int number_of_sections;
 		float diameter=0; // diameter of the tube which is the same for all body objects
 		float length=0;
+		std::vector<int> chirality;
 		bool isDynamic=true;
 		bool isSaved=false;
 		std::vector<btRigidBody*> bodies; // btRigidBody objects that make the tube
@@ -61,8 +64,10 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::list<tube> tubes;
 
 	struct bundle {
-		std::list<tube> tubes;
+		std::list<tube> subtubes;
+		bool isDynamic = true;
 	};
+	std::list<bundle> bundles;
 
 	btVector3 drop_coordinate(); // this method gives the appropriate coordinate for releasing the next tube
 
@@ -80,6 +85,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	}
 
 	// set the simulation properties according to _json_prop object which is constructed from input.json
+	// TODO add chirality input and calculate tube diameter based on that
 	void parse_json_prop(){
 		
 		std::string output_path = _json_prop["output directory"];
@@ -90,7 +96,15 @@ struct cnt_mesh : public CommonRigidBodyBase
 		_half_Lx = container_half_width;
 		_half_Lz = container_half_width;
 		
-		_tube_diameter.push_back(float(_json_prop["cnt diameter [nm]"]));
+		int num_chirality = _json_prop["number of chirality"];
+		for (int i = 0;i<num_chirality;i++){
+			std::vector<int> chir;
+			chir.push_back(_json_prop["cnt chirality"][2*i]);
+			chir.push_back(_json_prop["cnt chirality"][2*i+1]);
+			_tube_chirality.push_back(chir);
+			_tube_diameter.push_back(calc_diam(chir[0],chir[1]));
+		}
+		//_tube_diameter.push_back(float(_json_prop["cnt diameter [nm]"]));
 
 		int min_tube_length = _json_prop["cnt total length [nm]"][0];
 		int max_tube_length = _json_prop["cnt total length [nm]"][1];
@@ -134,6 +148,16 @@ struct cnt_mesh : public CommonRigidBodyBase
 		}
 	}
 
+	float calc_diam(int _m, int _n){
+		double _a_cc = 1.42e-1; // carbon-carbon distance [meters]
+ 		double _a_l = std::sqrt(float(3.0))*_a_cc; // graphene lattice constants [meters]
+		double _circum = _a_l*std::sqrt(float(_n*_n+_m*_m+_n*_m));
+		double pi=3.141592;
+  		// cnt radius
+ 		return (_circum/pi);
+
+	}
+
 	// set and save the json properties that is read and parsed from the input_json file.
 	void save_json_properties(nlohmann::json j);
 
@@ -159,6 +183,8 @@ struct cnt_mesh : public CommonRigidBodyBase
 
 	// make tubes static in the simulation and only leave _number_of_active_tubes as dynamic in the simulation.
 	void freeze_tubes(unsigned number_of_active_tubes);
+	// make bundles static in the simulation and only leave _number_of_active_tubes as dynamic in the simulation.
+	void freeze_bundles(unsigned number_of_active_bundles);
 
 	// remove the tubes from the simulation and only leave _max_number_of_tubes in the simulation
 	void remove_tubes(unsigned max_number_of_tubes);
@@ -182,6 +208,5 @@ struct cnt_mesh : public CommonRigidBodyBase
 	void save_tubes(int number_of_unsaved_tubes);
 
 };
-
 
 #endif //cnt_mesh_h
