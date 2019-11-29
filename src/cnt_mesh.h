@@ -144,7 +144,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	inline void stepSimulation(float deltaTime) {
 		if (m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(deltaTime,10,deltaTime);
+			m_dynamicsWorld->stepSimulation(deltaTime,1,deltaTime);
 		}
 	}
 
@@ -183,11 +183,11 @@ struct cnt_mesh : public CommonRigidBodyBase
 
 	// make tubes static in the simulation and only leave _number_of_active_tubes as dynamic in the simulation.
 	void freeze_tubes(unsigned number_of_active_tubes);
-	// make bundles static in the simulation and only leave _number_of_active_tubes as dynamic in the simulation.
-	void freeze_bundles(unsigned number_of_active_bundles);
 
 	// remove the tubes from the simulation and only leave _max_number_of_tubes in the simulation
 	void remove_tubes(unsigned max_number_of_tubes);
+	// make bundles static in the simulation and only leave _number_of_active_tubes as dynamic in the simulation.
+	void freeze_bundles(unsigned number_of_active_tubes);
 
 	// save the coordinates of the tube to an output file.
 	void save_one_tube(tube &t);

@@ -18,11 +18,9 @@
 #include "../misc_files/CommonInterfaces/CommonRigidBodyBase.h"
 
 void cnt_mesh::initPhysics() {
-	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
 
-	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
 	if (m_dynamicsWorld->getDebugDrawer())
 		m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
@@ -100,7 +98,7 @@ void cnt_mesh::create_container() {
 	// 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
 	// }
 
-	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	
 }
 
 // make tubes static in the simulation and only leave number_of_active_tubes as dynamic in the simulation.
@@ -131,8 +129,8 @@ void cnt_mesh::freeze_tubes(unsigned number_of_active_tubes) {
 		else
 			--it;
 	}
+	
 }
-
 
 void cnt_mesh::freeze_bundles(unsigned number_of_active_bundles) {
 	if (bundles.size() <= number_of_active_bundles)
@@ -167,8 +165,14 @@ void cnt_mesh::freeze_bundles(unsigned number_of_active_bundles) {
 		else
 			--it;
 	}
-
+	bundle reduce = bundles.front();
+	while(!reduce.isDynamic) {
+		bundles.pop_front();
+		reduce = bundles.front();
+	}
+	return;
 }
+
 
 // remove the tubes from the simulation and only leave max_number_of_tubes in the simulation
 void cnt_mesh::remove_tubes(unsigned max_number_of_tubes) {
@@ -207,11 +211,11 @@ void cnt_mesh::resetCamera() {
 	float pitch = -35;
 	float yaw = 52;
 	float targetPos[3] = { 0,0.46,0 };
-	m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 }
 
 // save properties of the input tube
 void cnt_mesh::save_one_tube(tube& t) {
+
 	if (number_of_saved_tubes % 10000 == 0) {
 		number_of_cnt_output_files++;
 
@@ -221,17 +225,17 @@ void cnt_mesh::save_one_tube(tube& t) {
 		position_file.open(output_file_path, std::ios::out);
 		position_file << std::showpos << std::scientific;
 
-		orientation_file.close();
-		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".orient.dat";
-		output_file_path = _output_directory / filename;
-		orientation_file.open(output_file_path, std::ios::out);
-		orientation_file << std::showpos << std::scientific;
+//		orientation_file.close();
+//		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".orient.dat";
+//		output_file_path = _output_directory / filename;
+//		orientation_file.open(output_file_path, std::ios::out);
+//		orientation_file << std::showpos << std::scientific;
 
-		length_file.close();
-		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".len.dat";
-		output_file_path = _output_directory / filename;
-		length_file.open(output_file_path, std::ios::out);
-		length_file << std::showpos << std::scientific;
+//		length_file.close();
+//		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".len.dat";
+//		output_file_path = _output_directory / filename;
+//		length_file.open(output_file_path, std::ios::out);
+//		length_file << std::showpos << std::scientific;
 
 		chirality_file.close();
 		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".chiral.dat";
@@ -239,10 +243,9 @@ void cnt_mesh::save_one_tube(tube& t) {
 		chirality_file.open(output_file_path, std::ios::out);
 		chirality_file << std::showpos << std::scientific;
 	}
-
 	number_of_saved_tubes++;
 	position_file << "tube number: " << number_of_saved_tubes << " ; ";
-	orientation_file << "tube number: " << number_of_saved_tubes << " ; ";
+//	orientation_file << "tube number: " << number_of_saved_tubes << " ; ";
 	chirality_file << "tube number: " << number_of_saved_tubes << " ; ";
 
 	int i = 0;
@@ -251,23 +254,23 @@ void cnt_mesh::save_one_tube(tube& t) {
 		b->getMotionState()->getWorldTransform(trans);
 		position_file << trans.getOrigin().x() << " , " << trans.getOrigin().y() << " , " << trans.getOrigin().z() << " ; ";
 
-		btQuaternion qt = trans.getRotation();
-		btVector3 ax(0, 1, 0); // initial axis of the cylinder
-		ax = ax.rotate(qt.getAxis(), qt.getAngle());
-		orientation_file << ax.x() << " , " << ax.y() << " , " << ax.z() << " ; ";
+//		btQuaternion qt = trans.getRotation();
+//		btVector3 ax(0, 1, 0); // initial axis of the cylinder
+//		ax = ax.rotate(qt.getAxis(), qt.getAngle());
+//		orientation_file << ax.x() << " , " << ax.y() << " , " << ax.z() << " ; ";
 
-		length_file << t.body_length[i++] << ";";
+//		length_file << t.body_length[i++] << ";";
 
 		chirality_file << t.chirality[0] << " , "<< t.chirality[1]  << " ; ";
 	}
 
 	position_file << std::endl;
-	orientation_file << std::endl;
-	length_file << std::endl;
+//	orientation_file << std::endl;
+//	length_file << std::endl;
 	chirality_file << std::endl;
 }
 
-void cnt_mesh::get_Ly() {
+void cnt_mesh::get_Ly() { //TODO the top is set to be the top of settled pile
 	btTransform trans;
 	float avgY = 0;
 	int count = 0;
@@ -405,8 +408,7 @@ void cnt_mesh::add_tube() {
 	// }
 
 
-	// generate the graphical representation of the object
-	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	
 }
 
 // this method adds a tube in the xz plane
@@ -510,8 +512,7 @@ void cnt_mesh::add_tube_in_xz() {
 	}
 
 
-	// generate the graphical representation of the object
-	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	
 
 };
 
@@ -552,7 +553,6 @@ void cnt_mesh::add_bundle_in_xz() {
 	my_bundle.subtubes.push_back(my_tube5);
 	my_bundle.subtubes.push_back(my_tube6);
 	my_bundle.subtubes.push_back(my_tube7);
-	
 
 	int d = std::rand() % _tube_section_collision_shapes.size(); // index related to the diameter of the tube
   // We will add 7 tubes at a time to adhere to the hexagonally packed bundle morphology
@@ -777,8 +777,7 @@ void cnt_mesh::add_bundle_in_xz() {
 	}
 
 
-	// generate the graphical representation of the object
-	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+
 
 }
 
@@ -881,8 +880,7 @@ void cnt_mesh::add_parallel_tube_in_xz() {
 	}
 
 
-	// generate the graphical representation of the object
-	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+
 }
 
 // make tubes static in the simulation and only leave number_of_active_tubes as dynamic in the simulation.
