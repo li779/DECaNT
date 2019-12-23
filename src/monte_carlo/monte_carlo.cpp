@@ -21,7 +21,7 @@ namespace mc
 {
 
   // high level method to calculate proper scattering table
-  scattering_struct monte_carlo::create_scattering_table(nlohmann::json j) {
+  std::vector<std::vector<scattering_struct>> monte_carlo::create_scattering_table(nlohmann::json j) {
     assert(j.count("rate type")>0);
 
     std::string rate_type = j["rate type"].get<std::string>();
@@ -45,16 +45,25 @@ namespace mc
         cnts.emplace_back(cnt(j_cnt, parent_directory));
         cnts.back().calculate_exciton_dispersion();
       };
-      return create_davoody_scatt_table(cnts[0], cnts[0]);
+
+	  std::vector<std::vector<scattering_struct>> all_tables(size(cnts));
+	  for (int i = 0; i < size(cnts); i++) {
+		  all_tables[i] = std::vector<scattering_struct>(size(cnts));
+		  for (int j = 0; j < size(cnts); j++) {
+			  all_tables[i][j] = create_davoody_scatt_table(cnts[i], cnts[j]);
+		  }
+	  }
+
+	  return all_tables;
     }
 
-    if (rate_type == "forster") {
+    /*if (rate_type == "forster") {
       return create_forster_scatt_table(1.e15, 1.4e9);
     }
 
     if (rate_type == "wong") {
       return create_forster_scatt_table(1.e13, 1.4e9);
-    }
+    }*/
     
     throw std::invalid_argument("rate type must be one of the following: \"davoody\", \"forster\", \"wong\"");
 
@@ -260,7 +269,7 @@ namespace mc
     _particle_velocity = _json_prop["exciton velocity [m/s]"];
     std::cout << "exciton velocity [m/s]: " << _particle_velocity << std::endl;
 
-    _scat_table = create_scattering_table(_json_prop);
+    _scat_tables = create_scattering_table(_json_prop);
     _all_scat_list = create_scatterers(_input_directory.path());
 
     domain_t d = find_simulation_domain();
@@ -293,7 +302,7 @@ namespace mc
 
     std::cout << "total number of scatterers: " << _all_scat_list.size() << std::endl;
 
-    set_scat_table(_scat_table, _all_scat_list);
+    set_scat_table(_scat_tables[0][0], _all_scat_list);
 
     create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets);
     set_max_rate(_max_hopping_radius, _all_scat_list);

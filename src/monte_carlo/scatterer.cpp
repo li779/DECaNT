@@ -61,6 +61,7 @@ namespace mc
         }
 
         double rate = scat_tab->get_rate(theta, z_shift, axis_shift_1, axis_shift_2);
+	//double rate = 5;
 
         std::pair<double, scatterer*> p = {rate, &s2};
 

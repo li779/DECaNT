@@ -60,10 +60,11 @@ int main(int argc, char *argv[]) {
   assert(j.count("exciton monte carlo")>0);
 
   double time_step = json_mc["monte carlo time step"];
+  int num_particle = json_mc["Number of particle in the simulation"];
 
   mc::monte_carlo sim(json_mc);
 
-  sim.kubo_init();
+  /*sim.kubo_init();
   sim.save_json_properties();
   sim.kubo_create_particles();
 
@@ -77,7 +78,8 @@ int main(int argc, char *argv[]) {
 
   std::cout << std::endl;
   std::cout << "Green-Kubo simulation finished!" << std::endl;
-  std::exit(0);
+*/
+ // std::exit(0);
 
 
 
@@ -86,14 +88,12 @@ int main(int argc, char *argv[]) {
 	sim.save_json_properties();
 
 
-  std::cout << "saving particle trajectories ...";
-  for (int n_particles = 0; n_particles < 100; ++n_particles) {
-    sim.track_particle(time_step, n_particles);
-  }
+  std::cout << "saving particle trajectories ..."<<std::endl;
+  sim.calc_diffusion(time_step,num_particle);
   std::cout << "done!" << std::endl;
 
 
-  std::cout << "\nrunning Monte Carlo:" << std::endl;
+ /* std::cout << "\nrunning Monte Carlo:" << std::endl;
 
   while (true) {
     sim.step(time_step);
@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
   std::time_t end_time = std::time(nullptr);
   std::cout << "\nruntime: " << std::difftime(end_time, start_time) << " seconds" << std::endl;
   std::cout << "\n***\nend time:\n" << std::asctime(std::localtime(&end_time)) << "***\n\n";
+*/
 
   return 0;
 }

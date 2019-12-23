@@ -63,7 +63,7 @@ private:
   directory_t _output_directory, _input_directory;
 
   // instantiation of the scattering table for discrete mesh points
-  scattering_struct _scat_table;
+  std::vector<std::vector<scattering_struct>> _scat_tables;
 
   // pointers to scatterers to divide the scatterers into multiple buckets based on their position in space
   bucket_t _scat_buckets;  
@@ -164,7 +164,7 @@ private:
     _n_seg = _json_prop["number of segments"];
     std::cout << "number of segments: " << _n_seg << std::endl;
 
-    _scat_table = create_scattering_table(_json_prop);
+    _scat_tables = create_scattering_table(_json_prop);
     _all_scat_list = create_scatterers(_input_directory.path());
 
     limit_t xlim = _json_prop["trim limits"]["xlim"];
@@ -175,7 +175,7 @@ private:
     
     std::cout << "total number of scatterers: " << _all_scat_list.size() << std::endl;
 
-    set_scat_table(_scat_table, _all_scat_list);
+    set_scat_table(_scat_tables[0][0], _all_scat_list);
 
     _domain = find_simulation_domain();
 
@@ -355,7 +355,7 @@ private:
 	};
 
   // high level method to calculate proper scattering table
-	scattering_struct create_scattering_table(nlohmann::json j);
+	std::vector<std::vector<scattering_struct>> create_scattering_table(nlohmann::json j);
 
 	// method to calculate scattering rate via forster method
 	scattering_struct create_forster_scatt_table(double gamma_0, double r_0);
@@ -827,7 +827,7 @@ private:
 
 	  // assert(_particle_list.empty() && "particle list is not empty!");
 
-	  double ymin = _domain.first(1);
+double ymin = _domain.first(1);
 	  double ymax = _domain.second(1);
 	  double dy = (ymax - ymin) / double(_n_seg);
 
