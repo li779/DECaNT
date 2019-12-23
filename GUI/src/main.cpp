@@ -7,6 +7,7 @@
 #include "../misc_files/CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../misc_files/Utils/b3Clock.h"
 
+#include "../misc_files/OpenGLWindow/SimpleOpenGL3App.h"
 #include "../misc_files/ExampleBrowser/OpenGLGuiHelper.h"
 
 #include "../lib/json.hpp"
@@ -21,6 +22,29 @@
 cnt_mesh*    example;
 int gSharedMemoryKey=-1;
 
+b3MouseMoveCallback prevMouseMoveCallback = 0;
+static void OnMouseMove( float x, float y)
+{
+	bool handled = false; 
+	handled = example->mouseMoveCallback(x,y); 	 
+	if (!handled)
+	{
+		if (prevMouseMoveCallback)
+			prevMouseMoveCallback (x,y);
+	}
+}
+
+b3MouseButtonCallback prevMouseButtonCallback  = 0;
+static void OnMouseDown(int button, int state, float x, float y) {
+	bool handled = false;
+
+	handled = example->mouseButtonCallback(button, state, x,y); 
+	if (!handled)
+	{
+		if (prevMouseButtonCallback )
+			prevMouseButtonCallback (button,state,x,y);
+	}
+}
 //*************************************************************************************************
 
 int main(int argc, char* argv[]) {
@@ -49,60 +73,103 @@ int main(int argc, char* argv[]) {
 	int number_of_tubes_before_deletion = j["number of tubes before deletion"];
 	int number_of_unsaved_tubes = j["number of unsaved tubes"];
 	int number_of_bundles = j["number of bundles"];
-        int number_of_steps = j["number_of_steps"];
-        btScalar time_step = j["time_step"];
 
+	SimpleOpenGL3App* app;
+	GUIHelperInterface* gui;
 
 	// flag to let the graphic visualization happen
 	bool visualize = j["visualize"];
+	
+	// SimpleOpenGL3App is a child of CommonGraphicsApp virtual class.
+	app = new SimpleOpenGL3App("carbon nanotube mesh",1024,768,true);
+
+	prevMouseButtonCallback = app->m_window->getMouseButtonCallback();
+	prevMouseMoveCallback = app->m_window->getMouseMoveCallback();
+
+	app->m_window->setMouseButtonCallback((b3MouseButtonCallback)OnMouseDown);
+	app->m_window->setMouseMoveCallback((b3MouseMoveCallback)OnMouseMove);
+	
+	gui = new OpenGLGuiHelper(app,false); // the second argument is a dummy one
+	// gui = new DummyGUIHelper();
+	CommonExampleOptions options(gui);
 
 	// CommonExampleInterface* example;
-	example = new cnt_mesh(NULL, j);	
-
+	example = new cnt_mesh(options.m_guiHelper, j);
+	
 	example->parse_json_prop();
 	example->save_json_properties(j);
 
-	
+
 	example->initPhysics();
 	example->create_container(); //container size is set in input.json
 	example->create_tube_colShapes();
 
+	if (visualize) {
+		example->resetCamera();
+	}
 
-	// example->get_Ly();
-	// example->add_tube_in_xz();
-	
 	int step_number = 0;
+
 	while(true)
 	{
 		step_number++;
-		btScalar dtSec = time_step;
+		btScalar dtSec = 0.5;
 		// btScalar dtSec = 0.01;
 		example->stepSimulation(dtSec);
 
-		if (step_number % number_of_steps == 0) // add new tubes every couple of steps.
+		if (step_number % 50 == 0) // add new tubes every couple of steps.
 		{	
 			example->get_Ly();
 
 			// add this many cnt's at a time
 			for (int i=0; i<number_of_tubes_added_together; i++)
 			{
-				example->add_parallel_tube_in_xz();
+				example->add_bundle_in_xz();
+				//example->add_parallel_tube_in_xz();
 			}
-			
 			example->save_tubes(number_of_unsaved_tubes);
-			
 			example->freeze_bundles(number_of_active_bundles); // keep only this many of tubes active (for example 100) and freeze the rest of the tubes
-			
-			example->remove_tubes(number_of_tubes_before_deletion); // keep only this many of tubes in the simulation (for example 400) and delete the rest of objects
+			// example->remove_tubes(number_of_tubes_before_deletion); // keep only this many of tubes in the simulation (for example 400) and delete the rest of objects
 			
 			std::cout << "number of saved tubes: " << example->no_of_saved_tubes() << ",  height [nm]:" << example->read_Ly() << "      \r" << std::flush;
 			
-			
+			if (visualize)
+			{
+				app->m_instancingRenderer->init();
+				app->m_instancingRenderer->updateCamera(app->getUpAxis());
+				example->renderScene();
+				
+				// draw some grids in the space
+				DrawGridData dg;
+				dg.upAxis = app->getUpAxis();
+				app->drawGrid(dg);
+				
+				app->swapBuffer();
+
+			}
 		}
-	if(example->no_of_saved_tubes()/7 > number_of_bundles)
+		if(example->no_of_saved_tubes()/7 > number_of_bundles)
 		break;
+
 	}
 
+
+	// if we did not visualize the simulation all along now visualize it one last time.
+	if (not visualize)
+	{
+		example->resetCamera();
+		app->m_instancingRenderer->init();
+		app->m_instancingRenderer->updateCamera(app->getUpAxis());
+		example->renderScene();
+		
+		// draw some grids in the space
+		DrawGridData dg;
+		dg.upAxis = app->getUpAxis();
+		app->drawGrid(dg);
+		
+		app->swapBuffer();
+
+	}
 	
 	// print the end time and the runtime
 	std::clock_t end = std::clock();
@@ -110,9 +177,10 @@ int main(int argc, char* argv[]) {
 	std::cout << std::endl << "end time:" << std::endl << std::asctime(std::localtime(&end_time));
 	std::cout << "runtime: " << std::difftime(end_time,start_time) << " seconds" << std::endl << std::endl;
 
-
 	example->exitPhysics();
 	delete example;
+	delete app;
+
+
 	return 0;
 }
-

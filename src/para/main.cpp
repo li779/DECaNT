@@ -49,8 +49,6 @@ int main(int argc, char* argv[]) {
 	int number_of_tubes_before_deletion = j["number of tubes before deletion"];
 	int number_of_unsaved_tubes = j["number of unsaved tubes"];
 	int number_of_bundles = j["number of bundles"];
-        int number_of_steps = j["number_of_steps"];
-        btScalar time_step = j["time_step"];
 
 
 	// flag to let the graphic visualization happen
@@ -70,16 +68,16 @@ int main(int argc, char* argv[]) {
 
 	// example->get_Ly();
 	// example->add_tube_in_xz();
-	
+
 	int step_number = 0;
 	while(true)
 	{
 		step_number++;
-		btScalar dtSec = time_step;
+		btScalar dtSec = 0.05;
 		// btScalar dtSec = 0.01;
 		example->stepSimulation(dtSec);
 
-		if (step_number % number_of_steps == 0) // add new tubes every couple of steps.
+		if (step_number % 50 == 0) // add new tubes every couple of steps.
 		{	
 			example->get_Ly();
 
@@ -88,11 +86,8 @@ int main(int argc, char* argv[]) {
 			{
 				example->add_parallel_tube_in_xz();
 			}
-			
 			example->save_tubes(number_of_unsaved_tubes);
-			
-			example->freeze_bundles(number_of_active_bundles); // keep only this many of tubes active (for example 100) and freeze the rest of the tubes
-			
+			example->freeze_tubes(number_of_active_bundles); // keep only this many of tubes active (for example 100) and freeze the rest of the tubes
 			example->remove_tubes(number_of_tubes_before_deletion); // keep only this many of tubes in the simulation (for example 400) and delete the rest of objects
 			
 			std::cout << "number of saved tubes: " << example->no_of_saved_tubes() << ",  height [nm]:" << example->read_Ly() << "      \r" << std::flush;
@@ -109,7 +104,8 @@ int main(int argc, char* argv[]) {
 	std::time_t end_time = std::time(nullptr);
 	std::cout << std::endl << "end time:" << std::endl << std::asctime(std::localtime(&end_time));
 	std::cout << "runtime: " << std::difftime(end_time,start_time) << " seconds" << std::endl << std::endl;
-
+	
+	
 
 	example->exitPhysics();
 	delete example;

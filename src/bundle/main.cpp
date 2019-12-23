@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 			// add this many cnt's at a time
 			for (int i=0; i<number_of_tubes_added_together; i++)
 			{
-				example->add_parallel_tube_in_xz();
+				example->add_bundle_in_xz();
 			}
 			
 			example->save_tubes(number_of_unsaved_tubes);

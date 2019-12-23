@@ -144,7 +144,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	inline void stepSimulation(float deltaTime) {
 		if (m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(deltaTime,10,deltaTime);
+			m_dynamicsWorld->stepSimulation(deltaTime,1,deltaTime);
 		}
 	}
 
