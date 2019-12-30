@@ -64,13 +64,14 @@ int main(int argc, char *argv[]) {
 
   mc::monte_carlo sim(json_mc);
 
-  /*sim.kubo_init();
+  sim.kubo_init(time_step);
   sim.save_json_properties();
   sim.kubo_create_particles();
 
   while (sim.time() < sim.kubo_max_time()) {
     sim.kubo_step(time_step);
     sim.kubo_save_avg_dispalcement_squared();
+    sim.kubo_save_individual_particle_dispalcements();
 
     std::cout << "kubo simulation: current time [seconds]: " << std::scientific << sim.time() << " .... "
               << "max time [seconds]: " << sim.kubo_max_time() << "\r" << std::flush;
@@ -78,20 +79,20 @@ int main(int argc, char *argv[]) {
 
   std::cout << std::endl;
   std::cout << "Green-Kubo simulation finished!" << std::endl;
-*/
+
  // std::exit(0);
 
 
 
 	// initialize and run simulation for the exciton hopping
-	sim.init();
+	/*sim.init(time_step);
 	sim.save_json_properties();
 
 
   std::cout << "saving particle trajectories ..."<<std::endl;
   sim.calc_diffusion(time_step,num_particle);
   std::cout << "done!" << std::endl;
-
+*/
 
  /* std::cout << "\nrunning Monte Carlo:" << std::endl;
 

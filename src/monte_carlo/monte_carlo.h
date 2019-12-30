@@ -827,7 +827,7 @@ private:
 
 	  // assert(_particle_list.empty() && "particle list is not empty!");
 
-double ymin = _domain.first(1);
+    double ymin = _domain.first(1);
 	  double ymax = _domain.second(1);
 	  double dy = (ymax - ymin) / double(_n_seg);
 
