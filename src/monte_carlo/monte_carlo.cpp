@@ -305,7 +305,7 @@ namespace mc
     _quenching_list = create_quenching_sites(_all_scat_list, 1000);
     set_scat_table(_scat_tables[0][0], _all_scat_list);
 
-    create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets);
+    create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets, _quenching_list, _q_buckets);
     set_max_rate(_max_hopping_radius, _all_scat_list);
 
     int n = _json_prop["number of sections for injection region"];

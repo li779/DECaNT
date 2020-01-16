@@ -59,10 +59,19 @@ namespace mc
     _old_pos = _pos;
     const scatterer* new_scat_ptr = nullptr;
 
+    if(disolved())
+      return;
+
     while (_ff_time <= dt) {
       dt -= _ff_time;
       
       fly(_ff_time, s_list);
+
+      if(_scat_ptr->check_quenching(max_hop_radius)){
+        set_disolved();
+        update_diff_len();
+        return;
+      }
       
       new_scat_ptr = _scat_ptr->update_state(max_hop_radius);
       
@@ -75,8 +84,13 @@ namespace mc
     }
     
     fly(dt, s_list);
-
     _ff_time -= dt;
+
+    if(_scat_ptr->check_quenching(max_hop_radius)){
+      set_disolved();
+      update_diff_len();
+      return;
+    }
 	};
 
 } // mc namespace

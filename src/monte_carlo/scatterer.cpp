@@ -83,6 +83,20 @@ namespace mc
     return neighbors_list;
   };
 
+  bool scatterer::check_quenching(const double& max_disolving_radius) const{
+    for(auto& l : close_quenches){
+      for (auto& s : (*l)){
+        arma::vec dR = this->pos() - s->pos();
+        double    distance = arma::norm(dR);
+
+        if (distance < max_disolving_radius){
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   int scatterer::no_of_neighbors(const double& max_hopping_radius) const {
     int count=0;
     

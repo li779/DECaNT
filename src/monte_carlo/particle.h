@@ -48,6 +48,8 @@ private:
   // final diffusion length
   arma::vec _diff_len{0,0,0};
 
+  bool isDisolved = false;
+
 public:
   particle() : _scat_ptr(nullptr), _pos({0, 0, 0}), _old_pos({0, 0, 0}), _ff_time(0), _heading_right(true), _velocity(0), _delta_pos({0,0,0}) {};
 
@@ -65,6 +67,10 @@ public:
 
   // return the pointer to the scatterer object
   const scatterer* scat_ptr() const { return _scat_ptr; };
+
+  void set_disolved(){isDisolved = true; };
+
+  const bool disolved() {return isDisolved; }
 
   // get position of the particle
   const arma::vec& pos() const { return _pos; };
@@ -106,7 +112,7 @@ public:
   void update_delta_pos() { _delta_pos += pos() - old_pos(); };
 
   // update diffusion length after trapped in a quenching site
-  void updata_diff_len() {_diff_len = pos() - init_pos();};
+  void update_diff_len() {_diff_len = pos() - init_pos();};
 
   // get the incremental dispalcement of the particle
   const arma::vec& delta_pos() const { return _delta_pos; };

@@ -38,6 +38,9 @@ public:
   // index of neighboring grid cells
   std::vector<std::vector<scatterer*>*> close_scats; 
 
+  // pointer to nearest quenching sites
+  std::vector<std::vector<scatterer*>*> close_quenches; 
+
   // pointer to the scattering struct
   const scattering_struct* scat_tab = nullptr;
 
@@ -106,6 +109,8 @@ public:
 
   // find neighbors of the current scatterer and their scattering rates
   std::vector < std::pair<double, scatterer*>> find_neighbors(const double& max_hopping_radius) const;
+
+  bool check_quenching(const double& max_disolving_radius) const;
 
   // count number of scatterer neighbors
   int no_of_neighbors(const double& max_hopping_radius) const;

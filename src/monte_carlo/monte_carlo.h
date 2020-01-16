@@ -71,6 +71,9 @@ private:
   // pointers to scatterers to divide the scatterers into multiple buckets based on their position in space
   bucket_t _scat_buckets;  
 
+  // pointers to quenching sites to divide the quenching sites into multiple buckets based on their position in space
+  bucket_t _q_buckets;  
+
   // pointers to scatterers in contact 1 and 2
   std::vector<const scatterer*> _c1_scat, _c2_scat;
 
@@ -195,7 +198,7 @@ private:
     _area = get_area(_n_seg);
     get_scatterer_statistics(_n_seg, _area);
 
-    create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets);
+    create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets, _quenching_list, _q_buckets);
     set_max_rate(_max_hopping_radius, _all_scat_list);
 
     _c1_scat = contact_scats(_all_scat_list, _n_seg, 1, _domain);
@@ -411,7 +414,7 @@ private:
   // divide scatterers into buckets based on their location, and set the pointers to enclosing and neighboring buckets
   // for each scatterer object
   void create_scatterer_buckets(const domain_t domain, const double radius, std::vector<scatterer>& scat_list,
-                                bucket_t& scat_buckets) {
+                                bucket_t& scat_buckets, std::vector<scatterer>& q_list, bucket_t& q_buckets) {
     using namespace std;
     
     std::cout << "\n" 
@@ -430,6 +433,7 @@ private:
     int    nz = std::ceil((zmax - zmin) / radius) + 1;
 
     scat_buckets.resize(nx*ny*nz);
+    q_buckets.resize(nx*ny*nz);
 
     for (scatterer& s : scat_list) {
       int ix = (s.pos(0) - xmin) / radius;
@@ -437,6 +441,14 @@ private:
       int iz = (s.pos(2) - zmin) / radius;
       int idx = ix + iy * nx + iz * nx * ny;
       scat_buckets[idx].push_back(&s);
+    }
+
+    for (scatterer& s : q_list) {
+      int ix = (s.pos(0) - xmin) / radius;
+      int iy = (s.pos(1) - ymin) / radius;
+      int iz = (s.pos(2) - zmin) / radius;
+      int idx = ix + iy * nx + iz * nx * ny;
+      q_buckets[idx].push_back(&s);
     }
 
 
@@ -451,6 +463,7 @@ private:
             if (i > -1 && i < nx && j > -1 && j < ny && k > -1 && k < nz) {
               unsigned idx = i + j * nx + k * nx * ny;
               s.close_scats.push_back(&(scat_buckets[idx]));
+              s.close_quenches.push_back(&(scat_buckets[idx]));
             }
           }
         }
