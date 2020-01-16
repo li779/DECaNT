@@ -53,6 +53,9 @@ private:
   // list of all scatterer object in the simulation
   std::vector<scatterer> _all_scat_list;
 
+  // list of quenching sites in the simulation
+  std::vector<scatterer> _quenching_list;
+
   // minimum and maximum coordinates of the simulation domain
   domain_t _domain;
 
@@ -105,6 +108,8 @@ private:
   // file to record average of square of displacements in each direction
   std::fstream _displacement_squard_file;
 
+  std::fstream _diffusion_tensor_file;
+
   //**************************************************************
   //**************************************************************
 
@@ -152,6 +157,14 @@ private:
 
   // returns the number of particles
   unsigned number_of_particles() const { return _particle_list.size(); };
+
+  double calc_diam(int _m, int _n){
+		double _a_cc = 1.42e-10; // carbon-carbon distance [nm]
+ 		double _a_l = std::sqrt(float(3.0))*_a_cc; // graphene lattice constants [nm]
+		double _circum = _a_l*std::sqrt(float(_n*_n+_m*_m+_n*_m));
+		double pi=3.141592;
+ 		return (_circum/pi);
+  }
 
   // initialize the simulation condition
   void init() {
@@ -252,6 +265,7 @@ private:
 
         scat_list[n].set_pos({xcoor(i, j), ycoor(i, j), zcoor(i, j)});
         scat_list[n].set_orientation({xorient(i, j), yorient(i, j), zorient(i, j)});
+        scat_list[n].set_chirality({4,2}); //TODO set to true chirality afterwards
         if (j > 0) {
           scat_list[n].left = n - 1;
         }
@@ -268,6 +282,37 @@ private:
               << std::endl;
 
     return scat_list;
+  }
+
+  // read in the coordinate of all the cnt segments or molecules and create the scatterer objects that manage
+  // particle hopping between the sites
+  std::vector<scatterer> create_quenching_sites(const std::vector<scatterer>& scat_list, int num_quenching){
+    std::cout << std::endl << "create quenching sites in fiber structure ... " << std::flush;
+
+    std::vector<scatterer> q_list(num_quenching);
+
+    for (int n=0; n<num_quenching; n++){
+      int dice = std::rand() % scat_list.size();
+      const scatterer* s = &scat_list[dice];
+      arma::vec pos = s->pos();
+      arma::vec chirality = s->chirality();
+      arma::vec orientation = s->orientation();
+      double diameter = calc_diam(chirality[0],chirality[1]);
+
+      arma::vec dia_vec = {diameter/2, 0, 0};
+      arma::vec new_pos = pos + dia_vec;
+
+      q_list[n].set_quenching();
+      q_list[n].set_pos(new_pos);
+    }
+
+    std::cout << "done!!!"
+              << std::endl
+              << std::endl
+              << "total number of quenching sites: " << q_list.size()
+              << std::endl;
+
+    return q_list;
   }
 
   // create particles with a linear density profile in y direction
@@ -898,7 +943,6 @@ private:
   }
 
   /*unsigned j = p_list.size();
-
   for (unsigned i = 0; i < j;) {
 	  if (p_list[i].pos(1) >= ymin && p_list[i].pos(1) <= ymax) {
 		  --j;
@@ -933,6 +977,8 @@ private:
 
   // save the average displacement of particles in kubo simulation
   void kubo_save_avg_dispalcement_squared();
+
+  void kubo_save_diffusion_tensor();
 
 }; // end class monte_carlo
 

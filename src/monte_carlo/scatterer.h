@@ -25,6 +25,8 @@ private:
 	double _inverse_max_rate; // inverse of the maximum scattering rate which is the lifetime
 	arma::vec _pos; // position of the scatterer
   arma::vec _orientation; // orientation of the scattering object site
+  arma::vec _chirality; // chirality of scattering site
+  bool _is_quench = false;
   
 public:
   // pointer to the scatterer on the right side (one side) of the current scatterer
@@ -70,6 +72,15 @@ public:
     return _orientation(i);
   };
 
+  // set quenching sites
+  void set_quenching() {_is_quench = true; };
+
+  // set chirality of the scatterer
+  void set_chirality(const arma::vec& chirality) { _chirality = chirality; };
+
+  // get chirality of the scatterer
+  const arma::vec& chirality() const { return _chirality; };
+
   // get random free flight time
   double ff_time() const {
     int r;
@@ -86,6 +97,7 @@ public:
   const double& max_rate() const { return _max_rate; };
 
   // set the max scattering rate by finding the neighbors
+  // TODO: there might be a problem when there is nothing in neighbor list
   void set_max_rate(const double& max_hopping_radius){
     auto neighbors = find_neighbors(max_hopping_radius);
     _max_rate = neighbors.back().first;

@@ -302,6 +302,7 @@ namespace mc
 
     std::cout << "total number of scatterers: " << _all_scat_list.size() << std::endl;
 
+    _quenching_list = create_quenching_sites(_all_scat_list, 1000);
     set_scat_table(_scat_tables[0][0], _all_scat_list);
 
     create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets);
@@ -416,6 +417,37 @@ namespace mc
     avg_z2 /= double(_particle_list.size());
 
     _displacement_squard_file << time() << "," << avg_x2 << "," << avg_y2 << "," << avg_z2 << std::endl;
+  }
+
+  void monte_carlo::kubo_save_diffusion_tensor(){
+    if (!_diffusion_tensor_file.is_open()) {
+      _diffusion_tensor_file.open(_output_directory.path() / "particle_diffusion_tensor.dat", std::ios::out);
+
+     _diffusion_tensor_file << std::showpos << std::scientific;
+      
+      _diffusion_tensor_file << "# this file contains the diffusion tensor Dij of the particle ensemble over time" << std::endl
+                                << "# number of particles: " << _particle_list.size() << std::endl
+                                << std::endl;
+
+      _diffusion_tensor_file << "time,Dxx,Dxy,Dxz,Dyy,Dyz,Dzz" << std::endl;
+    }
+
+    _diffusion_tensor_file << time();
+
+    double Dij, D1, D2, D3;
+    for(int i = 0; i < 3; i++){
+      for(int j = i; j < 3; j++){
+        for(const auto& p : _particle_list){
+          D1 += p.pos(i)*p.pos(j);
+          D2 += p.pos(i);
+          D3 += p.pos(j);
+        }
+        Dij = (D1 + D2 * D3)/(double)(_particle_list.size());
+        Dij /= double(2 * double(time()));
+        _diffusion_tensor_file << "," << Dij;
+      }
+    }
+    _diffusion_tensor_file << std::endl;
   }
 
 } // end of namespace mc

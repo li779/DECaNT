@@ -28,6 +28,9 @@ private:
   // position of the particle in the previous time step, this is used for boundary collision detection
   arma::vec _old_pos;
 
+  // initial position of particle
+  arma::vec _init_pos;
+
   // free flight time until next scattering event
   double _ff_time;
 
@@ -41,6 +44,9 @@ private:
 
   // incremental displacement of the particle that is used for calculating diffusion coefficient through green-kubo method
   arma::vec _delta_pos{0,0,0};
+
+  // final diffusion length
+  arma::vec _diff_len{0,0,0};
 
 public:
   particle() : _scat_ptr(nullptr), _pos({0, 0, 0}), _old_pos({0, 0, 0}), _ff_time(0), _heading_right(true), _velocity(0), _delta_pos({0,0,0}) {};
@@ -62,6 +68,9 @@ public:
 
   // get position of the particle
   const arma::vec& pos() const { return _pos; };
+
+  // get initial position of particle
+  const arma::vec& init_pos() const { return _init_pos; };
 
   // get position of the particle
   const double& pos(const double& i) const { return _pos(i); };
@@ -95,6 +104,9 @@ public:
 
   // update incremental displacement of the particle.
   void update_delta_pos() { _delta_pos += pos() - old_pos(); };
+
+  // update diffusion length after trapped in a quenching site
+  void updata_diff_len() {_diff_len = pos() - init_pos();};
 
   // get the incremental dispalcement of the particle
   const arma::vec& delta_pos() const { return _delta_pos; };
