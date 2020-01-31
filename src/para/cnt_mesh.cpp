@@ -47,56 +47,56 @@ void cnt_mesh::create_container() {
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
 	}
 
-	// // create the z direction side wall planes
-	// {
-	// 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0); // plane collision shape with an offset of 0 unit from the origin
-	// 	m_collisionShapes.push_back(groundShape);
+	 // create the z direction side wall planes
+	 {
+	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 0, 1), 0); // plane collision shape with an offset of 0 unit from the origin
+	 	m_collisionShapes.push_back(groundShape);
 
-	// 	btScalar mass(0.);
+	 	btScalar mass(0.);
 
-	// 	btTransform groundTransform;
-	// 	groundTransform.setIdentity();
-	// 	groundTransform.setOrigin(btVector3(0,0,-_half_Lz));	
-	// 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-	// }
+	 	btTransform groundTransform;
+	 	groundTransform.setIdentity();
+	 	groundTransform.setOrigin(btVector3(0,0,-_half_Lz));
+	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+	 }
 
-	// {
-	// 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 0, -1), 0); // plane collision shape with an offset of 0 unit from the origin
-	// 	m_collisionShapes.push_back(groundShape);
+	 {
+	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 0, -1), 0); // plane collision shape with an offset of 0 unit from the origin
+	 	m_collisionShapes.push_back(groundShape);
 
-	// 	btScalar mass(0.);
+	 	btScalar mass(0.);
 
-	// 	btTransform groundTransform;
-	// 	groundTransform.setIdentity();
-	// 	groundTransform.setOrigin(btVector3(0,0,_half_Lz));	
-	// 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-	// }
+	 	btTransform groundTransform;
+	 	groundTransform.setIdentity();
+	 	groundTransform.setOrigin(btVector3(0,0,_half_Lz));
+	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+	 }
 
 
-	// // create the x direction side wall planes
-	// {
-	// 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
-	// 	m_collisionShapes.push_back(groundShape);
-
-	// 	btScalar mass(0.);
-
-	// 	btTransform groundTransform;
-	// 	groundTransform.setIdentity();
-	// 	groundTransform.setOrigin(btVector3(-_half_Lx,0,0));	
-	// 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-	// }
-
-	// {
-	// 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(-1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
-	// 	m_collisionShapes.push_back(groundShape);
-
-	// 	btScalar mass(0.);
-
-	// 	btTransform groundTransform;
-	// 	groundTransform.setIdentity();
-	// 	groundTransform.setOrigin(btVector3(_half_Lx,0,0));	
-	// 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-	// }
+//	 // create the x direction side wall planes
+//	 {
+//	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
+//	 	m_collisionShapes.push_back(groundShape);
+//
+//	 	btScalar mass(0.);
+//
+//	 	btTransform groundTransform;
+//	 	groundTransform.setIdentity();
+//	 	groundTransform.setOrigin(btVector3(-_half_Lx,0,0));
+//	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+//	 }
+//
+//	 {
+//	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(-1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
+//	 	m_collisionShapes.push_back(groundShape);
+//
+//	 	btScalar mass(0.);
+//
+//	 	btTransform groundTransform;
+//	 	groundTransform.setIdentity();
+//	 	groundTransform.setOrigin(btVector3(_half_Lx,0,0));
+//	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+//	 }
 
 	
 }
@@ -165,8 +165,14 @@ void cnt_mesh::freeze_bundles(unsigned number_of_active_bundles) {
 		else
 			--it;
 	}
-
+	bundle reduce = bundles.front();
+	while(!reduce.isDynamic) {
+		bundles.pop_front();
+		reduce = bundles.front();
+	}
+	return;
 }
+
 
 // remove the tubes from the simulation and only leave max_number_of_tubes in the simulation
 void cnt_mesh::remove_tubes(unsigned max_number_of_tubes) {
@@ -190,9 +196,17 @@ void cnt_mesh::remove_tubes(unsigned max_number_of_tubes) {
 
 // this method gives the appropriate coordinate for releasing the next tube
 btVector3 cnt_mesh::drop_coordinate() {
-	return btVector3(_half_Lx * ((2.0 * float(std::rand()) / float(RAND_MAX)) - 1.0),
+	return btVector3(_half_Lx *((2.0 * float(std::rand()) / float(RAND_MAX)) - 1.0),
 		drop_height + Ly,
 		_half_Lz * ((2.0 * float(std::rand()) / float(RAND_MAX)) - 1.0)
+	);
+}
+
+// this method gives the appropriate coordinate for releasing the next tube
+btVector3 cnt_mesh::drop_para_coordinate() {
+	return btVector3(_half_Lx,
+					 drop_height + Ly,
+					 _half_Lz * ((2.0 * float(std::rand()) / float(RAND_MAX)) - 1.0)
 	);
 }
 
@@ -218,16 +232,19 @@ void cnt_mesh::save_one_tube(tube& t) {
 		output_file_path = _output_directory / filename;
 		position_file.open(output_file_path, std::ios::out);
 		position_file << std::showpos << std::scientific;
-		orientation_file.close();
-		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".orient.dat";
-		output_file_path = _output_directory / filename;
-		orientation_file.open(output_file_path, std::ios::out);
-		orientation_file << std::showpos << std::scientific;
-		length_file.close();
-		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".len.dat";
-		output_file_path = _output_directory / filename;
-		length_file.open(output_file_path, std::ios::out);
-		length_file << std::showpos << std::scientific;
+
+//		orientation_file.close();
+//		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".orient.dat";
+//		output_file_path = _output_directory / filename;
+//		orientation_file.open(output_file_path, std::ios::out);
+//		orientation_file << std::showpos << std::scientific;
+
+//		length_file.close();
+//		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".len.dat";
+//		output_file_path = _output_directory / filename;
+//		length_file.open(output_file_path, std::ios::out);
+//		length_file << std::showpos << std::scientific;
+
 		chirality_file.close();
 		filename = "tube" + std::to_string(number_of_cnt_output_files) + ".chiral.dat";
 		output_file_path = _output_directory / filename;
@@ -236,29 +253,32 @@ void cnt_mesh::save_one_tube(tube& t) {
 	}
 	number_of_saved_tubes++;
 	position_file << "tube number: " << number_of_saved_tubes << " ; ";
-	orientation_file << "tube number: " << number_of_saved_tubes << " ; ";
+//	orientation_file << "tube number: " << number_of_saved_tubes << " ; ";
 	chirality_file << "tube number: " << number_of_saved_tubes << " ; ";
+
 	int i = 0;
 	btTransform trans;
 	for (const auto& b : t.bodies) {
 		b->getMotionState()->getWorldTransform(trans);
 		position_file << trans.getOrigin().x() << " , " << trans.getOrigin().y() << " , " << trans.getOrigin().z() << " ; ";
-		btQuaternion qt = trans.getRotation();
-		btVector3 ax(0, 1, 0); // initial axis of the cylinder
-		ax = ax.rotate(qt.getAxis(), qt.getAngle());
-		orientation_file << ax.x() << " , " << ax.y() << " , " << ax.z() << " ; ";
-		length_file << t.body_length[i++] << ";";
+
+//		btQuaternion qt = trans.getRotation();
+//		btVector3 ax(0, 1, 0); // initial axis of the cylinder
+//		ax = ax.rotate(qt.getAxis(), qt.getAngle());
+//		orientation_file << ax.x() << " , " << ax.y() << " , " << ax.z() << " ; ";
+
+//		length_file << t.body_length[i++] << ";";
 
 		chirality_file << t.chirality[0] << " , "<< t.chirality[1]  << " ; ";
 	}
 
 	position_file << std::endl;
-	orientation_file << std::endl;
-	length_file << std::endl;
+//	orientation_file << std::endl;
+//	length_file << std::endl;
 	chirality_file << std::endl;
 }
 
-void cnt_mesh::get_Ly() {
+void cnt_mesh::get_Ly() { //TODO the top is set to be the top of settled pile
 	btTransform trans;
 	float avgY = 0;
 	int count = 0;
@@ -413,7 +433,8 @@ void cnt_mesh::add_tube_in_xz() {
 	int l = std::rand() % _tube_length.size(); // index related to the length of the tube
 	float length = _tube_length[l];
 
-	my_tube.chirality= _tube_chirality[d];
+	int c = std::rand() % _tube_chirality.size(); // index related to the chirality of the tube
+	my_tube.chirality= _tube_chirality[c];
 
 	// set drop orientation of the tube
 	float angle = float(std::rand() % 1000) / 1000. * pi;
@@ -556,6 +577,7 @@ void cnt_mesh::add_bundle_in_xz() {
 	int l = std::rand() % _tube_length.size(); // index related to the length of the tube
 	float length = _tube_length[l];
 
+	//int c = std::rand() % _tube_chirality.size(); // index related to the chirality of the tube
 	my_tube1.chirality= _tube_chirality[d];
 	my_tube2.chirality= _tube_chirality[d];
 	my_tube3.chirality= _tube_chirality[d];
@@ -768,7 +790,7 @@ void cnt_mesh::add_bundle_in_xz() {
 }
 
 
-// TODO
+// TODO chirality is not added yet
 // this method adds parallel tube like blinds in the xz plane
 void cnt_mesh::add_parallel_tube_in_xz() {
 	const float pi = 3.14159265358979323846;
@@ -778,11 +800,11 @@ void cnt_mesh::add_parallel_tube_in_xz() {
 
 	int d = std::rand() % _tube_section_collision_shapes.size(); // index related to the diameter of the tube
 	my_tube.diameter = _tube_diameter[d];
+	my_tube.chirality = _tube_chirality[d];
 
 	int l = std::rand() % _tube_length.size(); // index related to the length of the tube
 	float length = _tube_length[l];
 
-	my_tube.chirality= _tube_chirality[d];
 	// set drop orientation of the tube
 	float angle = 0;
 	btVector3 ax(std::cos(angle), 0, std::sin(angle)); // axis vector for the tube sections
@@ -792,7 +814,7 @@ void cnt_mesh::add_parallel_tube_in_xz() {
 	btVector3 q_axis = ax.rotate(btVector3(0, 1, 0), pi / 2); // axis vector for the quaternion describing orientation of tube sections
 	qt.setRotation(q_axis, pi / 2);
 
-	btVector3 drop_coor = drop_coordinate();
+	btVector3 drop_coor = drop_para_coordinate();
 	// btVector3 drop_coor(0,Ly,0);
 
 	// set the density of the material making the tubes

@@ -30,6 +30,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::fstream orientation_file; // this is the output file that the orientation of cnt sections are written into.
 	std::fstream length_file; // this is the output file that the length of cnt sections are written into.
 	std::fstream chirality_file; // this is the output file that the chirality of cnt sections are written into.
+	std::fstream debug_file;
 	int number_of_saved_tubes; // this is the total number of cnts whos coordinates are saved into output file.
 	int number_of_cnt_output_files; // this is the number of output files that the cnt coordinates has been written into.
 
@@ -70,6 +71,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::list<bundle> bundles;
 
 	btVector3 drop_coordinate(); // this method gives the appropriate coordinate for releasing the next tube
+	btVector3 drop_para_coordinate();
 
   public:
 	// constructor
@@ -144,7 +146,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	inline void stepSimulation(float deltaTime) {
 		if (m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(deltaTime,10,deltaTime);
+			m_dynamicsWorld->stepSimulation(deltaTime,1,deltaTime);
 		}
 	}
 
@@ -206,6 +208,28 @@ struct cnt_mesh : public CommonRigidBodyBase
 	};
 
 	void save_tubes(int number_of_unsaved_tubes);
+
+	float tube_pos(tube t){
+		btTransform trans;
+		int num_section = 0;
+		float avgY;
+		for (const auto& b : t.bodies) {
+			b->getMotionState()->getWorldTransform(trans);
+			avgY += trans.getOrigin().getY();
+			num_section++;
+		}
+		return avgY/(float)num_section;
+	}
+
+	void printtube(int tube_number){
+		int count = 0;
+		for (const auto& t : tubes) {
+			if(count == tube_number && t.isDynamic){
+				std::cout << std::showpos << std::scientific << "tube#" << tube_number << ": "<< tube_pos(t) << "\n\n"<< std::endl;
+			}
+			count++;
+		}
+	}
 
 };
 
