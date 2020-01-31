@@ -91,10 +91,6 @@ private:
 
   double _particle_velocity=0;
 
-  int _quenching_sites_num = 0;
-
-  std::vector<std::vector<int>> chirality_map;
-
   //**************************************************************
   // this section holds variables specific to the green-kubo method
   // of calculating diffusion coefficient
@@ -291,7 +287,7 @@ private:
 
         scat_list[n].set_pos({xcoor(i, j), ycoor(i, j), zcoor(i, j)});
         scat_list[n].set_orientation({xorient(i, j), yorient(i, j), zorient(i, j)});
-        scat_list[n].set_chirality({chiral1(i,j), chiral2(i,j)}); 
+        scat_list[n].set_chirality({4,2}); //TODO set to true chirality afterwards
         if (j > 0) {
           scat_list[n].left = n - 1;
         }
@@ -495,12 +491,6 @@ private:
 
     std::cout << "done!\n";
 
-  }
-
-  void set_scat_tables(const std::vector<std::vector<scattering_struct>> _scat_tables, std::vector<scatterer>& scat_list) {
-    for (auto& s : scat_list) {
-      //s.scat_tab = &scat_tab;
-    }
   }
 
   // set the pointer to scattering table struct for all scatterer objects

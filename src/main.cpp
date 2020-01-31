@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 
   mc::monte_carlo sim(json_mc);
 
-  sim.kubo_init(time_step);
+  sim.kubo_init();
   sim.save_json_properties();
   sim.kubo_create_particles();
 
@@ -72,10 +72,12 @@ int main(int argc, char *argv[]) {
     sim.kubo_step(time_step);
     sim.kubo_save_avg_dispalcement_squared();
     sim.kubo_save_individual_particle_dispalcements();
+    // sim.kubo_save_diffusion_tensor();
 
     std::cout << "kubo simulation: current time [seconds]: " << std::scientific << sim.time() << " .... "
               << "max time [seconds]: " << sim.kubo_max_time() << "\r" << std::flush;
   }
+  sim.kubo_save_diffusion_length();
 
   std::cout << std::endl;
   std::cout << "Green-Kubo simulation finished!" << std::endl;

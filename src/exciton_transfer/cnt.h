@@ -353,6 +353,11 @@ public:
   {
     return _name;
   };
+
+  const std::vector<int> chirality(){
+    
+    return std::vector<int> {_n,_m};
+  };
 };
 
 #endif // end _cnt_h_

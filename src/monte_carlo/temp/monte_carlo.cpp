@@ -46,12 +46,6 @@ namespace mc
         cnts.back().calculate_exciton_dispersion();
       };
 
-      chirality_map.resize(cnts.size());
-      for(int i = 0; i < size(cnts); i++){
-        chirality_map[i] = cnts[i].chirality();
-        std::cout << i <<"th tube's chirality: [" << chirality_map[i][0] << ", " << chirality_map[i][1] << "]" << std::endl;
-      }
-
 	  std::vector<std::vector<scattering_struct>> all_tables(size(cnts));
 	  for (int i = 0; i < size(cnts); i++) {
 		  all_tables[i] = std::vector<scattering_struct>(size(cnts));
@@ -275,7 +269,7 @@ namespace mc
     _particle_velocity = _json_prop["exciton velocity [m/s]"];
     std::cout << "exciton velocity [m/s]: " << _particle_velocity << std::endl;
 
-    _scat_tables = create_scattering_table(_json_prop);
+    //_scat_tables = create_scattering_table(_json_prop);
     _all_scat_list = create_scatterers(_input_directory.path());
 
     domain_t d = find_simulation_domain();
@@ -308,14 +302,12 @@ namespace mc
 
     std::cout << "total number of scatterers: " << _all_scat_list.size() << std::endl;
 
-    _quenching_sites_num = _json_prop["number of quenching sites"];
-    _quenching_list = create_quenching_sites(_all_scat_list, _quenching_sites_num);
-    std::cout << "total number of quenching sites: " << _quenching_list.size() << std::endl;
-    set_scat_table(_scat_tables[0][0], _all_scat_list);
+    _quenching_list = create_quenching_sites(_all_scat_list, 10000);
+    //set_scat_table(_scat_tables[0][0], _all_scat_list);
 
     create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets, _quenching_list, _q_buckets);
-    //_scat_tables = create_scattering_table(_json_prop);
-    //set_scat_table(_scat_tables[0][0], _all_scat_list);
+    _scat_tables = create_scattering_table(_json_prop);
+    set_scat_table(_scat_tables[0][0], _all_scat_list);
     set_max_rate(_max_hopping_radius, _all_scat_list);
 
     int n = _json_prop["number of sections for injection region"];

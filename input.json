@@ -1,7 +1,7 @@
 {
     "cnts":{
         "comment": "the cnts listed in this section ARE used in the monte carlo simulation",
-        "directory": "../monte_carlo/exciton_energy/",
+        "directory": "~/research/monte_carlo/exciton_energy/",
         "1": {
             "keep old results": false,
             "chirality": [6,1],
@@ -9,12 +9,38 @@
         }
     },
 
-    
+    "exciton transfer":{
+        "directory": "~/research/monte_carlo/exciton_transfer",
+        "1":{
+            "keep old results": false,
+            "skip": true,
+            "cnt 1":"42",
+            "cnt 2":"61",
+            "angle": [0,90,100,"degrees"],
+            "zshift": [1.9,"nm"],
+            "axis shift 1": [0,"nm"],
+            "axis shift 2": [0,"nm"],
+            "temperature": [300,"Kelvin"],
+            "broadening factor": [4,"meV"]
+        },
+        "2":{
+            "keep old results": false,
+            "skip": false,
+            "cnt 1":"42",
+            "cnt 2":"61",
+            "angle": [0,90,10,"degrees"],
+            "zshift": [1.9,"nm"],
+            "axis shift 1": [0,"nm"],
+            "axis shift 2": [0,"nm"],
+            "temperature": [300,"Kelvin"],
+            "broadening factor": [4,"meV"]
+        }
+    },
 
   "exciton monte carlo": {
-    "mesh input directory": "~/Desktop/mesh/cnt_mesh_fiber_4000_final",
+    "mesh input directory": "~/research/mesh/cnt_mesh_fiber_4000_model",
 
-    "output directory": "~/Desktop/monte_carlo/monte_carlo_fiber_exp",
+    "output directory": "~/research/monte_carlo/monte_carlo_fiber_test",
     "keep old results": false,
 
     "rate type": "davoody",
@@ -38,6 +64,7 @@
     "Number of particle in the simulation":2000,
     "number of sections for injection region": 3,
     "maximum time for kubo simulation [seconds]": 1e-12,
-    "number of particles for kubo simulation": 2000
+    "number of particles for kubo simulation": 2000,
+    "number of quenching sites":  0
   }
 }
