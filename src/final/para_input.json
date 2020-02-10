@@ -1,0 +1,25 @@
+{
+    "output directory":"../mesh/cnt_mesh_fiber_para_exp",
+    "keep old files":false,
+
+    "visualize":false,
+    
+    "container width [nm]":100,
+
+    "drop height [nm]": 20,
+
+    "number of chirality": 1,
+    "cnt chirality": [4,2],
+    "cnt diameter [nm]":0.5,
+    "cnt total length [nm]": [100,100],
+    "cnt section length [nm]": [25,25],
+
+    "number of tubes added together": 10,
+    "number of active bundles": 280,
+    "number of tubes before deletion": 30000,
+    "number of unsaved tubes": 300,
+    "number of bundles": 4000,
+    "number_of_steps": 10,
+    "time_step": 0.05
+
+}
