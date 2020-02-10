@@ -10,7 +10,7 @@
 
     "number of chirality": 1,
     "cnt chirality": [4,2],
-    "cnt diameter [nm]":0.5,
+    "cnt intertube spacing [nm]":0.1,
     "cnt total length [nm]": [100,100],
     "cnt section length [nm]": [25,25],
 
@@ -20,6 +20,8 @@
     "number of unsaved tubes": 300,
     "number of bundles": 4000,
     "number_of_steps": 10,
-    "time_step": 0.05
+    "time_step": 0.05,
+    "parallel": false,
+    "bundle": false
 
 }
