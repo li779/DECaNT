@@ -103,7 +103,11 @@ public:
   // TODO: there might be a problem when there is nothing in neighbor list
   void set_max_rate(const double& max_hopping_radius){
     auto neighbors = find_neighbors(max_hopping_radius);
-    _max_rate = neighbors.back().first;
+    if (neighbors == NULL){
+      _max_rate = 5;
+    } else {
+      _max_rate = neighbors.back().first;
+    }
     _inverse_max_rate = 1./_max_rate;
   };
 
