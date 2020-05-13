@@ -200,7 +200,7 @@ void cnt_mesh::remove_tubes(unsigned max_number_of_tubes) {
 // this method gives the appropriate coordinate for releasing the next tube
 btVector3 cnt_mesh::drop_coordinate() {
 	return btVector3(_half_Lx *((2.0 * float(std::rand()) / float(RAND_MAX)) - 1.0),
-		drop_height + Ly,
+		drop_height, //drop_height + Ly,
 		_half_Lz * ((2.0 * float(std::rand()) / float(RAND_MAX)) - 1.0)
 	);
 }
@@ -208,7 +208,7 @@ btVector3 cnt_mesh::drop_coordinate() {
 // this method gives the appropriate coordinate for releasing the next tube
 btVector3 cnt_mesh::drop_para_coordinate() {
 	return btVector3(_half_Lx,
-					 drop_height + Ly,
+					 drop_height, //drop_height + Ly,
 					 _half_Lz * ((2.0 * float(std::rand()) / float(RAND_MAX)) - 1.0)
 	);
 }

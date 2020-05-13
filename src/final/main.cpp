@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
 			
 			
 		}
-	if(example->no_of_saved_tubes()/7 > number_of_bundles)
+	if(example->no_of_saved_tubes() > number_of_bundles)
 		break;
 	}
 
