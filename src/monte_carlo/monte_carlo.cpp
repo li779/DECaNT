@@ -309,11 +309,12 @@ namespace mc
 
     std::cout << "total number of scatterers: " << _all_scat_list.size() << std::endl;
 
-    _quenching_sites_num = _json_prop["number of quenching sites"];
+    double quenching_density = _json_prop["density of quenching sites"];
+    _quenching_sites_num = quenching_density * _all_scat_list.size();
     _quenching_list = create_quenching_sites(_all_scat_list, _quenching_sites_num);
     std::cout << "total number of quenching sites: " << _quenching_list.size() << std::endl;
     set_scat_tables(_scat_tables,chirality_map, _all_scat_list);
-    
+
     create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets, _quenching_list, _q_buckets);
     //_scat_tables = create_scattering_table(_json_prop);
     //set_scat_table(_scat_tables[0][0], _all_scat_list);

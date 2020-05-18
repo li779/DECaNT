@@ -4,43 +4,15 @@
         "directory": "~/research/monte_carlo/exciton_energy/",
         "1": {
             "keep old results": false,
-            "chirality": [6,1],
+            "chirality": [4,2],
             "length": [10,"cnt unit cells"]
         }
     },
 
-    "exciton transfer":{
-        "directory": "~/research/monte_carlo/exciton_transfer",
-        "1":{
-            "keep old results": false,
-            "skip": true,
-            "cnt 1":"42",
-            "cnt 2":"61",
-            "angle": [0,90,100,"degrees"],
-            "zshift": [1.9,"nm"],
-            "axis shift 1": [0,"nm"],
-            "axis shift 2": [0,"nm"],
-            "temperature": [300,"Kelvin"],
-            "broadening factor": [4,"meV"]
-        },
-        "2":{
-            "keep old results": false,
-            "skip": false,
-            "cnt 1":"42",
-            "cnt 2":"61",
-            "angle": [0,90,10,"degrees"],
-            "zshift": [1.9,"nm"],
-            "axis shift 1": [0,"nm"],
-            "axis shift 2": [0,"nm"],
-            "temperature": [300,"Kelvin"],
-            "broadening factor": [4,"meV"]
-        }
-    },
-
   "exciton monte carlo": {
-    "mesh input directory": "~/research/mesh/cnt_mesh_fiber_4000_model",
+    "mesh input directory": "~/research/mesh/cnt_mesh_fiber_random_bundle_S0.2",
 
-    "output directory": "~/research/monte_carlo/monte_carlo_fiber_test",
+    "output directory": "~/research/monte_carlo/monte_carlo_fiber_quenching_D0.06",
     "keep old results": false,
 
     "rate type": "davoody",
@@ -65,6 +37,6 @@
     "number of sections for injection region": 3,
     "maximum time for kubo simulation [seconds]": 1e-12,
     "number of particles for kubo simulation": 2000,
-    "number of quenching sites":  0
+    "density of quenching sites":  0.06
   }
 }
