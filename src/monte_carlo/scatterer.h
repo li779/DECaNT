@@ -21,6 +21,9 @@ namespace mc {
 class scatterer {
 
 private:
+  typedef std::vector<std::vector<scattering_struct*>> scatt_t;
+  typedef std::vector<std::vector<int>> map_t;
+
 	double _max_rate; // maximum scattering rate in the scattering table
 	double _inverse_max_rate; // inverse of the maximum scattering rate which is the lifetime
 	arma::vec _pos; // position of the scatterer
@@ -42,12 +45,16 @@ public:
   std::vector<std::vector<scatterer*>*> close_quenches; 
 
   // pointer to the scattering struct
-  const scattering_struct* scat_tab = nullptr;
+  scatt_t scat_tab;
+  //const scattering_struct* scat_tab = nullptr;
+
+  map_t chirality_map;
 
 public:
 
 	// default constructor
-  scatterer(): _max_rate(0), _inverse_max_rate(0), right(-1), left(-1), scat_tab(nullptr) {};
+  //scatterer(): _max_rate(0), _inverse_max_rate(0), right(-1), left(-1), scat_tab(nullptr) {};
+  scatterer(): _max_rate(0), _inverse_max_rate(0), right(-1), left(-1) {};
 
   // set position of the scatterer
   void set_pos(const arma::vec& position) { _pos = position; };
@@ -118,6 +125,17 @@ public:
 
   // count number of scatterer neighbors
   int no_of_neighbors(const double& max_hopping_radius) const;
+
+  //return index of chirality using map
+  int chiral_index(const arma::vec& chiral) const {
+    int tube_size = size(chirality_map);
+    for(int i = 0; i<tube_size; i++){
+      if(chirality_map[i][0]==chiral[0] && chirality_map[i][1]==chiral[1])
+        return i;
+    }
+    std::cout<< "panic: cannot find corresponding chirality!!"<< std::endl;
+    return -1;
+  }
 
 };  // end class scatterer
 

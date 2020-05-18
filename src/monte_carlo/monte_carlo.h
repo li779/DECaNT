@@ -39,7 +39,9 @@ private:
   typedef std::experimental::filesystem::directory_entry directory_t;
   typedef std::pair<arma::vec, arma::vec> domain_t;
   typedef std::vector<std::vector<scatterer*>> bucket_t;
+  typedef std::vector<std::vector<scattering_struct>> scatt_t;
   typedef std::pair<double, double> limit_t;
+  typedef std::vector<std::vector<int>> map_t;
 
   // elapsed simulation time
   double _time;
@@ -66,7 +68,7 @@ private:
   directory_t _output_directory, _input_directory;
 
   // instantiation of the scattering table for discrete mesh points
-  std::vector<std::vector<scattering_struct>> _scat_tables;
+  scatt_t _scat_tables;
 
   // pointers to scatterers to divide the scatterers into multiple buckets based on their position in space
   bucket_t _scat_buckets;  
@@ -93,7 +95,7 @@ private:
 
   int _quenching_sites_num = 0;
 
-  std::vector<std::vector<int>> chirality_map;
+  map_t chirality_map;
 
   //**************************************************************
   // this section holds variables specific to the green-kubo method
@@ -197,7 +199,7 @@ private:
     
     std::cout << "total number of scatterers: " << _all_scat_list.size() << std::endl;
 
-    set_scat_table(_scat_tables[0][0], _all_scat_list);
+    set_scat_tables(_scat_tables,chirality_map, _all_scat_list);
 
     _domain = find_simulation_domain();
 
@@ -426,7 +428,7 @@ private:
 	};
 
   // high level method to calculate proper scattering table
-	std::vector<std::vector<scattering_struct>> create_scattering_table(nlohmann::json j);
+	scatt_t create_scattering_table(nlohmann::json j);
 
 	// method to calculate scattering rate via forster method
 	scattering_struct create_forster_scatt_table(double gamma_0, double r_0);
@@ -497,18 +499,27 @@ private:
 
   }
 
-  void set_scat_tables(const std::vector<std::vector<scattering_struct>> _scat_tables, std::vector<scatterer>& scat_list) {
+  void set_scat_tables(scatt_t& _scat_tabs, map_t& _chirality_map, std::vector<scatterer>& scat_list) {
+    int tube_size = size(_scat_tabs);
     for (auto& s : scat_list) {
-      //s.scat_tab = &scat_tab;
+      s.chirality_map = _chirality_map;
+      s.scat_tab.resize(tube_size);
+      for (int i = 0; i < tube_size; i++) {
+		  s.scat_tab[i] = std::vector<scattering_struct*>(tube_size);
+		  for (int j = 0; j < tube_size; j++) {
+			  s.scat_tab[i][j] = &_scat_tabs[i][j];
+		  }
+	  }
     }
+    std::cout <<"th tube's chirality: [" << _chirality_map[0][0] << ", " << _chirality_map[0][1] << "]" << std::endl;
   }
 
-  // set the pointer to scattering table struct for all scatterer objects
-  void set_scat_table(const scattering_struct& scat_tab, std::vector<scatterer>& scat_list) {
-    for (auto& s : scat_list) {
-      s.scat_tab = &scat_tab;
-    }
-  }
+  // // set the pointer to scattering table struct for all scatterer objects
+  // void set_scat_table(const scattering_struct& scat_tab, std::vector<scatterer>& scat_list) {
+  //   for (auto& s : scat_list) {
+  //     s.scat_tab = &scat_tab;
+  //   }
+  // }
 
   // set the max scattering rate for all the scatterers
   void set_max_rate(const double max_hopping_radius, std::vector<scatterer>& scat_list){

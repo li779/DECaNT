@@ -21,7 +21,7 @@ namespace mc
 {
 
   // high level method to calculate proper scattering table
-  std::vector<std::vector<scattering_struct>> monte_carlo::create_scattering_table(nlohmann::json j) {
+  monte_carlo::scatt_t monte_carlo::create_scattering_table(nlohmann::json j) {
     assert(j.count("rate type")>0);
 
     std::string rate_type = j["rate type"].get<std::string>();
@@ -52,13 +52,14 @@ namespace mc
         std::cout << i <<"th tube's chirality: [" << chirality_map[i][0] << ", " << chirality_map[i][1] << "]" << std::endl;
       }
 
-	  std::vector<std::vector<scattering_struct>> all_tables(size(cnts));
+	  monte_carlo::scatt_t all_tables(size(cnts));
 	  for (int i = 0; i < size(cnts); i++) {
 		  all_tables[i] = std::vector<scattering_struct>(size(cnts));
 		  for (int j = 0; j < size(cnts); j++) {
 			  all_tables[i][j] = create_davoody_scatt_table(cnts[i], cnts[j]);
 		  }
 	  }
+	  
 
 	  return all_tables;
     }
@@ -311,8 +312,8 @@ namespace mc
     _quenching_sites_num = _json_prop["number of quenching sites"];
     _quenching_list = create_quenching_sites(_all_scat_list, _quenching_sites_num);
     std::cout << "total number of quenching sites: " << _quenching_list.size() << std::endl;
-    set_scat_table(_scat_tables[0][0], _all_scat_list);
-
+    set_scat_tables(_scat_tables,chirality_map, _all_scat_list);
+    
     create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets, _quenching_list, _q_buckets);
     //_scat_tables = create_scattering_table(_json_prop);
     //set_scat_table(_scat_tables[0][0], _all_scat_list);
