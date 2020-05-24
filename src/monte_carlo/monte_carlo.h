@@ -65,7 +65,10 @@ private:
   unsigned _c1_pop, _c2_pop;
 
   // this is the address of the output_directory and input_directory
-  directory_t _output_directory, _input_directory;
+  directory_t _output_directory, _input_directory, _scatter_table_directory;
+
+  // scatter table directory
+  std::string _scat_directory;
 
   // instantiation of the scattering table for discrete mesh points
   scatt_t _scat_tables;
@@ -140,11 +143,13 @@ private:
 
     // set the output directory
     std::string directory_path = j["output directory"];
+    _scat_directory = j["scatter table directory"];
     bool        keep_old_data = true;
     if (j.count("keep old results") == 1) {
       keep_old_data = j["keep old results"];
     }
     _output_directory = prepare_directory(directory_path, keep_old_data);
+    _scatter_table_directory = check_directory(_scat_directory, false);
 
     // set the input directory for mesh information
     directory_path = j["mesh input directory"];
@@ -1034,6 +1039,10 @@ private:
   void kubo_save_diffusion_tensor();
 
   void kubo_save_diffusion_length();
+
+  bool check_scat_tab(std::experimental::filesystem::path path_ref);
+
+  scattering_struct recovery_scatt_table(std::experimental::filesystem::path path, const cnt& d_cnt, const cnt& a_cnt);
 
 }; // end class monte_carlo
 

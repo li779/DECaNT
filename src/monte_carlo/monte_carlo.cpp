@@ -56,7 +56,15 @@ namespace mc
 	  for (int i = 0; i < size(cnts); i++) {
 		  all_tables[i] = std::vector<scattering_struct>(size(cnts));
 		  for (int j = 0; j < size(cnts); j++) {
-			  all_tables[i][j] = create_davoody_scatt_table(cnts[i], cnts[j]);
+        std::experimental::filesystem::path path_ref =_scatter_table_directory.path();
+        path_ref /= std::to_string(cnts[i].chirality()[0])+std::to_string(cnts[i].chirality()[1])+std::to_string(cnts[j].chirality()[0])+std::to_string(cnts[j].chirality()[1])+"scat_table";
+        
+        if(check_scat_tab(path_ref))
+          all_tables[i][j] = recovery_scatt_table(path_ref,cnts[i], cnts[j]);
+        else {
+          std::cout<<"table not found!!"<<std::endl;
+			    all_tables[i][j] = create_davoody_scatt_table(cnts[i], cnts[j]);
+        }
 		  }
 	  }
 	  
@@ -75,6 +83,39 @@ namespace mc
     throw std::invalid_argument("rate type must be one of the following: \"davoody\", \"forster\", \"wong\"");
 
   };
+
+  scattering_struct monte_carlo::recovery_scatt_table(std::experimental::filesystem::path path, const cnt& d_cnt, const cnt& a_cnt) {
+    path /= "scat_table";
+
+    arma::vec z_shift;
+    z_shift.load(std::string(path) + ".z_shift.dat");
+
+    std::cout<<"z_shift loaded!"<<std::endl;
+
+    arma::vec axis_shift_1;
+    axis_shift_1.load(std::string(path) + ".axis_shift_1.dat");
+
+    std::cout<<"axis_shift_1 loaded!"<<std::endl;
+
+    arma::vec axis_shift_2;
+    axis_shift_2.load(std::string(path) + ".axis_shift_2.dat");
+
+    std::cout<<"axis_shift_2 loaded!"<<std::endl;
+
+    arma::vec theta;
+    theta.load(std::string(path) + ".theta.dat");
+
+    std::cout<<"theta loaded!"<<std::endl;
+
+    arma::field<arma::cube> rate(theta.n_elem);
+    rate.for_each([&](arma::cube& c){
+      unsigned i_th=0;
+      c.load(std::string(path) + std::to_string(i_th)+ ".rates.dat");
+      i_th++;});
+
+    scattering_struct scat_table(rate,theta,z_shift,axis_shift_1,axis_shift_2, d_cnt.chirality(), a_cnt.chirality());
+    return scat_table;
+  }
 
   // method to calculate scattering rate via davoody et al. method
   scattering_struct monte_carlo::create_davoody_scatt_table(const cnt& d_cnt, const cnt& a_cnt) {
@@ -149,7 +190,7 @@ namespace mc
       }
     }
 
-    scattering_struct scat_table(rate,theta,z_shift,axis_shift_1,axis_shift_2);
+    scattering_struct scat_table(rate,theta,z_shift,axis_shift_1,axis_shift_2, d_cnt.chirality(), a_cnt.chirality());
 
     double max_rate = 0;
     double min_rate = 10e15;
@@ -163,57 +204,57 @@ namespace mc
               << std::endl;
 
     // std::string filename(_output_directory.path() / "davoody_scat_rates.dat");
-    scat_table.save(_output_directory.path());
+    scat_table.save(_scatter_table_directory.path());
 
     return scat_table;
   };
 
-  // method to calculate scattering rate via forster method
-  scattering_struct monte_carlo::create_forster_scatt_table(double gamma_0, double r_0) {
-    auto zshift_prop = _json_prop["zshift [m]"];
-    arma::vec z_shift = arma::linspace<arma::vec>(zshift_prop[0], zshift_prop[1], zshift_prop[2]);
+  // // method to calculate scattering rate via forster method
+  // scattering_struct monte_carlo::create_forster_scatt_table(double gamma_0, double r_0) {
+  //   auto zshift_prop = _json_prop["zshift [m]"];
+  //   arma::vec z_shift = arma::linspace<arma::vec>(zshift_prop[0], zshift_prop[1], zshift_prop[2]);
 
-    auto axis_shift_prop_1 = _json_prop["axis shift 1 [m]"];
-    arma::vec axis_shift_1 = arma::linspace<arma::vec>(axis_shift_prop_1[0], axis_shift_prop_1[1], axis_shift_prop_1[2]);
+  //   auto axis_shift_prop_1 = _json_prop["axis shift 1 [m]"];
+  //   arma::vec axis_shift_1 = arma::linspace<arma::vec>(axis_shift_prop_1[0], axis_shift_prop_1[1], axis_shift_prop_1[2]);
 
-    auto axis_shift_prop_2 = _json_prop["axis shift 2 [m]"];
-    arma::vec axis_shift_2 = arma::linspace<arma::vec>(axis_shift_prop_2[0], axis_shift_prop_2[1], axis_shift_prop_2[2]);
+  //   auto axis_shift_prop_2 = _json_prop["axis shift 2 [m]"];
+  //   arma::vec axis_shift_2 = arma::linspace<arma::vec>(axis_shift_prop_2[0], axis_shift_prop_2[1], axis_shift_prop_2[2]);
 
-    auto theta_prop = _json_prop["theta [degrees]"];
-    arma::vec theta = arma::linspace<arma::vec>(theta_prop[0], theta_prop[1], theta_prop[2])*(constants::pi/180);
+  //   auto theta_prop = _json_prop["theta [degrees]"];
+  //   arma::vec theta = arma::linspace<arma::vec>(theta_prop[0], theta_prop[1], theta_prop[2])*(constants::pi/180);
 
-    arma::field<arma::cube> rate(theta.n_elem);
-    rate.for_each([&](arma::cube& c){c.zeros(z_shift.n_elem, axis_shift_1.n_elem, axis_shift_2.n_elem);});
+  //   arma::field<arma::cube> rate(theta.n_elem);
+  //   rate.for_each([&](arma::cube& c){c.zeros(z_shift.n_elem, axis_shift_1.n_elem, axis_shift_2.n_elem);});
 
-    progress_bar prog(theta.n_elem*z_shift.n_elem*axis_shift_1.n_elem*axis_shift_2.n_elem,"create forster scattering table");
+  //   progress_bar prog(theta.n_elem*z_shift.n_elem*axis_shift_1.n_elem*axis_shift_2.n_elem,"create forster scattering table");
 
-    unsigned i_th=0;
-    for (const auto& th: theta) {
-      unsigned i_zsh=0;
-      for (const auto& zsh: z_shift) {
-        unsigned i_ash1=0;
-        for (const auto& ash1: axis_shift_1) {
-          unsigned i_ash2=0;
-          for (const auto& ash2: axis_shift_2) {
-            prog.step();
-            arma::vec r1 = {ash1, 0, 0};
-            arma::vec r2 = {ash2*std::cos(th), ash2*std::sin(th), zsh};
-            arma::vec dR = r1-r2;
-            double angle_factor = std::cos(th)-3*arma::dot(arma::normalise(r1),arma::normalise(dR))*arma::dot(arma::normalise(r2),arma::normalise(dR));
-            rate(i_th)(i_zsh,i_ash1,i_ash2) = gamma_0*std::pow(angle_factor,2)*std::pow(1.e-9/arma::norm(dR),6);
-            i_ash2++;
-          }
-          i_ash1++;
-        }
-        i_zsh++;
-      }
-      i_th++;
-    }
+  //   unsigned i_th=0;
+  //   for (const auto& th: theta) {
+  //     unsigned i_zsh=0;
+  //     for (const auto& zsh: z_shift) {
+  //       unsigned i_ash1=0;
+  //       for (const auto& ash1: axis_shift_1) {
+  //         unsigned i_ash2=0;
+  //         for (const auto& ash2: axis_shift_2) {
+  //           prog.step();
+  //           arma::vec r1 = {ash1, 0, 0};
+  //           arma::vec r2 = {ash2*std::cos(th), ash2*std::sin(th), zsh};
+  //           arma::vec dR = r1-r2;
+  //           double angle_factor = std::cos(th)-3*arma::dot(arma::normalise(r1),arma::normalise(dR))*arma::dot(arma::normalise(r2),arma::normalise(dR));
+  //           rate(i_th)(i_zsh,i_ash1,i_ash2) = gamma_0*std::pow(angle_factor,2)*std::pow(1.e-9/arma::norm(dR),6);
+  //           i_ash2++;
+  //         }
+  //         i_ash1++;
+  //       }
+  //       i_zsh++;
+  //     }
+  //     i_th++;
+  //   }
 
-    scattering_struct scat_table(rate,theta,z_shift,axis_shift_1,axis_shift_2);
+  //   scattering_struct scat_table(rate,theta,z_shift,axis_shift_1,axis_shift_2, nullptr, nullptr);
 
-    return scat_table;
-  };
+  //   return scat_table;
+  // };
 
   // slice the domain into n sections in each direction, and return a list of scatterers in the center region as the injection region
   std::vector<const scatterer *> monte_carlo::injection_region(const std::vector<scatterer> &all_scat, const domain_t domain, const int n) {
@@ -480,6 +521,15 @@ namespace mc
       _diffusion_length_file << p.diff_len(0) << "," << p.diff_len(1) << "," << p.diff_len(2) << std::endl;
     }
     
+  }
+
+  bool monte_carlo::check_scat_tab(std::experimental::filesystem::path path_ref){
+
+    for(auto& p: std::experimental::filesystem::directory_iterator(_scatter_table_directory.path())){
+        if(p==path_ref)
+        return true;
+    }
+    return false;
   }
 
 } // end of namespace mc

@@ -1,69 +1,48 @@
 {
-    "cnts":{
-        "comment": "the cnts listed in this section ARE used in the monte carlo simulation",
-        "directory": "../monte_carlo/exciton_energy/",
-        "1": {
-            "keep old results": false,
-            "chirality": [6,1],
-            "length": [10,"cnt unit cells"]
-        }
-    },
+  "cnts":{
+      "comment": "the cnts listed in this section ARE used in the monte carlo simulation",
+      "directory": "~/research/monte_carlo/exciton_energy/",
+      "1": {
+          "keep old results": false,
+          "chirality": [4,2],
+          "length": [10,"cnt unit cells"]
+      },
+"2": {
+    "keep old results":false,
+    "chirality": [3,1],
+    "length": [10, "cnt unit cells"]
+}
+  },
 
-    "exciton transfer":{
-        "directory": "../monte_carlo/exciton_transfer",
-        "1":{
-            "keep old results": false,
-            "skip": true,
-            "cnt 1":"42",
-            "cnt 2":"61",
-            "angle": [0,90,100,"degrees"],
-            "zshift": [1.9,"nm"],
-            "axis shift 1": [0,"nm"],
-            "axis shift 2": [0,"nm"],
-            "temperature": [300,"Kelvin"],
-            "broadening factor": [4,"meV"]
-        },
-        "2":{
-            "keep old results": false,
-            "skip": false,
-            "cnt 1":"42",
-            "cnt 2":"61",
-            "angle": [0,90,10,"degrees"],
-            "zshift": [1.9,"nm"],
-            "axis shift 1": [0,"nm"],
-            "axis shift 2": [0,"nm"],
-            "temperature": [300,"Kelvin"],
-            "broadening factor": [4,"meV"]
-        }
-    },
+"exciton monte carlo": {
+  "mesh input directory": "~/research/mesh/cnt_mesh_fiber_random_bundle_fast_test",
+  "scatter table directory": "~/research/monte_carlo/scatter_table",
 
-  "exciton monte carlo": {
-    "mesh input directory": "~/Desktop/mesh/cnt_mesh_fiber_4000_final",
+  "output directory": "~/research/monte_carlo/monte_carlo_fiber_random_bundle_fast_test1",
+  "keep old results": false,
 
-    "output directory": "~/Desktop/monte_carlo/monte_carlo_fiber_exp",
-    "keep old results": false,
+  "rate type": "davoody",
+  "zshift [m]": [ 1.5e-9, 10e-9, 11 ],
+  "axis shift 1 [m]": [ -10e-9, 10e-9, 11 ],
+  "axis shift 2 [m]": [ -10e-9, 10e-9, 11 ],
+  "theta [degrees]": [ 0, 180, 21 ],
+  "temperature [kelvin]": 300,
 
-    "rate type": "davoody",
-    "zshift [m]": [ 1.5e-9, 10e-9, 11 ],
-    "axis shift 1 [m]": [ -10e-9, 10e-9, 11 ],
-    "axis shift 2 [m]": [ -10e-9, 10e-9, 11 ],
-    "theta [degrees]": [ 0, 180, 21 ],
-    "temperature [kelvin]": 300,
+  "max hopping radius [m]": 20e-9,
 
-    "max hopping radius [m]": 20e-9,
+  "number of segments": 10,
+  "trim limits": {
+    "xlim": [ -1e-6, 1e-6 ],
+    "ylim": [ 0, 1e-7 ],
+    "zlim": [ -1e-6, 1e-6 ]
+  },
 
-    "number of segments": 10,
-    "trim limits": {
-      "xlim": [ -1e-6, 1e-6 ],
-      "ylim": [ 0, 1e-7 ],
-      "zlim": [ -1e-6, 1e-6 ]
-    },
-
-    "exciton velocity [m/s]": 2,
-    "monte carlo time step": 1e-15,
-    "Number of particle in the simulation":2000,
-    "number of sections for injection region": 3,
-    "maximum time for kubo simulation [seconds]": 1e-12,
-    "number of particles for kubo simulation": 2000
-  }
+  "exciton velocity [m/s]": 2,
+  "monte carlo time step": 1e-15,
+  "Number of particle in the simulation":2000,
+  "number of sections for injection region": 3,
+  "maximum time for kubo simulation [seconds]": 1e-12,
+  "number of particles for kubo simulation": 2000,
+  "density of quenching sites":  0
+}
 }

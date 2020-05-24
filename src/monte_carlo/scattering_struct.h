@@ -17,12 +17,16 @@ struct scattering_struct {
                     const arma::vec& m_theta,
                     const arma::vec& m_z_shift,
                     const arma::vec& m_axis_shift_1,
-                    const arma::vec& m_axis_shift_2) {
+                    const arma::vec& m_axis_shift_2,
+                    const std::vector<int>& m_donor_chiral,
+                    const std::vector<int>& m_accepter_chiral) {
     rate = m_rate;
     theta = m_theta;
     z_shift = m_z_shift;
     axis_shift_1 = m_axis_shift_1;
     axis_shift_2 = m_axis_shift_2;
+    donor_chiral = m_donor_chiral;
+    accepter_chiral = m_accepter_chiral;
   };
 
   arma::field<arma::cube> rate;
@@ -30,6 +34,8 @@ struct scattering_struct {
   arma::vec z_shift;
   arma::vec axis_shift_1;
   arma::vec axis_shift_2;
+  std::vector<int> donor_chiral;
+  std::vector<int> accepter_chiral;
 
   // get the scattering rate based on the precalculated rates for
   // discrete mesh points. Right now this equation only gets the
@@ -54,44 +60,55 @@ struct scattering_struct {
   // save the scattering table to file
   typedef std::experimental::filesystem::path path_t;
   void save(path_t path) {
+    path /= std::to_string(donor_chiral[0])+std::to_string(donor_chiral[1])+std::to_string(accepter_chiral[0])+std::to_string(accepter_chiral[1])+"scat_table";
+    std::experimental::filesystem::create_directory(path);
     path /= "scat_table";
 
-    std::ofstream file(std::string(path) + ".theta.dat", std::ios::ate);
-    file << theta;
-    file.close();
-
-    file.open(std::string(path) + ".z_shift.dat", std::ios::ate);
-    file << z_shift;
-    file.close();
-
-    file.open(std::string(path) + ".axis_shift_1.dat", std::ios::ate);
-    file << axis_shift_1;
-    file.close();
-
-    file.open(std::string(path) + ".axis_shift_2.dat", std::ios::ate);
-    file << axis_shift_2;
-    file.close();
-
-    file.open(std::string(path) + ".rates.dat", std::ios::ate);
-    file << "sizes:" << std::endl;
-    file << "theta, z_shift, axis_shift_1, axis_shift_2" << std::endl;
-    file << theta.n_elem << ","<< z_shift.n_elem << "," << axis_shift_1.n_elem << "," << axis_shift_2.n_elem << std::endl;
-    file << std::endl;
-    
+    theta.save(std::string(path) + ".theta.dat");
+    z_shift.save(std::string(path) + ".z_shift.dat");
+    axis_shift_1.save(std::string(path) + ".axis_shift_1.dat");
+    axis_shift_2.save(std::string(path) + ".axis_shift_2.dat");
 
     for (unsigned i_th=0; i_th<theta.n_elem; i_th++) {
-      for (unsigned i_zsh=0; i_zsh < z_shift.n_elem; i_zsh++) {
-        for (unsigned i_ash1=0; i_ash1 < axis_shift_1.n_elem; i_ash1++) {
-          for (unsigned i_ash2=0; i_ash2 < axis_shift_2.n_elem; i_ash2++) {
-            file << rate(i_th)(i_zsh, i_ash1, i_ash2) << "\n";
-          }
-        }
-      }
+      rate(i_th).save(std::string(path) + std::to_string(i_th)+ ".rates.dat");
     }
 
-    file.close();
+  //   std::ofstream file(std::string(path) + ".theta.dat", std::ios::ate);
+  //   file << theta;
+  //   file.close();
 
-  }
+  //   file.open(std::string(path) + ".z_shift.dat", std::ios::ate);
+  //   file << z_shift;
+  //   file.close();
+
+  //   file.open(std::string(path) + ".axis_shift_1.dat", std::ios::ate);
+  //   file << axis_shift_1;
+  //   file.close();
+
+  //   file.open(std::string(path) + ".axis_shift_2.dat", std::ios::ate);
+  //   file << axis_shift_2;
+  //   file.close();
+
+  //   file.open(std::string(path) + ".rates.dat", std::ios::ate);
+  //   file << "sizes:" << std::endl;
+  //   file << "theta, z_shift, axis_shift_1, axis_shift_2" << std::endl;
+  //   file << theta.n_elem << ","<< z_shift.n_elem << "," << axis_shift_1.n_elem << "," << axis_shift_2.n_elem << std::endl;
+  //   file << std::endl;
+    
+
+  //   for (unsigned i_th=0; i_th<theta.n_elem; i_th++) {
+  //     for (unsigned i_zsh=0; i_zsh < z_shift.n_elem; i_zsh++) {
+  //       for (unsigned i_ash1=0; i_ash1 < axis_shift_1.n_elem; i_ash1++) {
+  //         for (unsigned i_ash2=0; i_ash2 < axis_shift_2.n_elem; i_ash2++) {
+  //           file << rate(i_th)(i_zsh, i_ash1, i_ash2) << "\n";
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   file.close();
+
+   }
 };
 
 }

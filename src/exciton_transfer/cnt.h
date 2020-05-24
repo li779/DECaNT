@@ -354,7 +354,7 @@ public:
     return _name;
   };
 
-  const std::vector<int> chirality(){
+  const std::vector<int> chirality() const{
     
     return std::vector<int> {_n,_m};
   };
