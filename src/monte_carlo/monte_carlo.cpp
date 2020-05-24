@@ -58,7 +58,7 @@ namespace mc
 		  for (int j = 0; j < size(cnts); j++) {
         std::experimental::filesystem::path path_ref =_scatter_table_directory.path();
         path_ref /= std::to_string(cnts[i].chirality()[0])+std::to_string(cnts[i].chirality()[1])+std::to_string(cnts[j].chirality()[0])+std::to_string(cnts[j].chirality()[1])+"scat_table";
-        
+
         if(check_scat_tab(path_ref))
           all_tables[i][j] = recovery_scatt_table(path_ref,cnts[i], cnts[j]);
         else {
@@ -108,12 +108,14 @@ namespace mc
     std::cout<<"theta loaded!"<<std::endl;
 
     arma::field<arma::cube> rate(theta.n_elem);
+    unsigned i_th=0;
     rate.for_each([&](arma::cube& c){
-      unsigned i_th=0;
       c.load(std::string(path) + std::to_string(i_th)+ ".rates.dat");
       i_th++;});
 
     scattering_struct scat_table(rate,theta,z_shift,axis_shift_1,axis_shift_2, d_cnt.chirality(), a_cnt.chirality());
+
+    //scat_table.save_visible(_output_directory.path());
     return scat_table;
   }
 

@@ -109,6 +109,47 @@ struct scattering_struct {
   //   file.close();
 
    }
+
+    void save_visible(path_t path) {
+    path /= "scat_table";
+
+    std::ofstream file(std::string(path) + ".theta.dat", std::ios::ate);
+    file << theta;
+    file.close();
+
+    file.open(std::string(path) + ".z_shift.dat", std::ios::ate);
+    file << z_shift;
+    file.close();
+
+    file.open(std::string(path) + ".axis_shift_1.dat", std::ios::ate);
+    file << axis_shift_1;
+    file.close();
+
+    file.open(std::string(path) + ".axis_shift_2.dat", std::ios::ate);
+    file << axis_shift_2;
+    file.close();
+
+    file.open(std::string(path) + ".rates.dat", std::ios::ate);
+    file << "sizes:" << std::endl;
+    file << "theta, z_shift, axis_shift_1, axis_shift_2" << std::endl;
+    file << theta.n_elem << ","<< z_shift.n_elem << "," << axis_shift_1.n_elem << "," << axis_shift_2.n_elem << std::endl;
+    file << std::endl;
+    
+
+    for (unsigned i_th=0; i_th<theta.n_elem; i_th++) {
+      for (unsigned i_zsh=0; i_zsh < z_shift.n_elem; i_zsh++) {
+        for (unsigned i_ash1=0; i_ash1 < axis_shift_1.n_elem; i_ash1++) {
+          for (unsigned i_ash2=0; i_ash2 < axis_shift_2.n_elem; i_ash2++) {
+            file << rate(i_th)(i_zsh, i_ash1, i_ash2) << "\n";
+          }
+        }
+      }
+    }
+
+    file.close();
+
+  }
+
 };
 
 }

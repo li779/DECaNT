@@ -149,7 +149,7 @@ private:
       keep_old_data = j["keep old results"];
     }
     _output_directory = prepare_directory(directory_path, keep_old_data);
-    _scatter_table_directory = check_directory(_scat_directory, false);
+    _scatter_table_directory = check_directory(_scat_directory, true);
 
     // set the input directory for mesh information
     directory_path = j["mesh input directory"];
