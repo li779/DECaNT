@@ -76,30 +76,30 @@ void cnt_mesh::create_z_plane() {
 	 }
 
 
-//	 // create the x direction side wall planes
-//	 {
-//	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
-//	 	m_collisionShapes.push_back(groundShape);
-//
-//	 	btScalar mass(0.);
-//
-//	 	btTransform groundTransform;
-//	 	groundTransform.setIdentity();
-//	 	groundTransform.setOrigin(btVector3(-_half_Lx,0,0));
-//	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-//	 }
-//
-//	 {
-//	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(-1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
-//	 	m_collisionShapes.push_back(groundShape);
-//
-//	 	btScalar mass(0.);
-//
-//	 	btTransform groundTransform;
-//	 	groundTransform.setIdentity();
-//	 	groundTransform.setOrigin(btVector3(_half_Lx,0,0));
-//	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-//	 }
+	 // create the x direction side wall planes
+	 {
+	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
+	 	m_collisionShapes.push_back(groundShape);
+
+	 	btScalar mass(0.);
+
+	 	btTransform groundTransform;
+	 	groundTransform.setIdentity();
+	 	groundTransform.setOrigin(btVector3(-_half_Lx,0,0));
+	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+	 }
+
+	 {
+	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(-1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
+	 	m_collisionShapes.push_back(groundShape);
+
+	 	btScalar mass(0.);
+
+	 	btTransform groundTransform;
+	 	groundTransform.setIdentity();
+	 	groundTransform.setOrigin(btVector3(_half_Lx,0,0));
+	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+	 }
 
 	
 }
@@ -459,29 +459,36 @@ void cnt_mesh::add_bundle_in_xz(bool parallel) {
 	my_bundle.subtubes.push_back(my_tube6);
 	my_bundle.subtubes.push_back(my_tube7);
 
-	int d = std::rand() % _tube_section_collision_shapes.size(); // index related to the diameter of the tube
+	int d = std::rand() % 100; // index related to the diameter of the tube
+	int c_index = 0;
+	for(int i =0; i<_tube_section_collision_shapes.size(); i++){
+		if(_chirality_prob[i] >= d)
+			break;
+		else
+			c_index++;
+	}
   // We will add 7 tubes at a time to adhere to the hexagonally packed bundle morphology
   // Tube 1 will be the center tube, and tubes 2-7 will utilize a hinge constraint to attach to tube 1
-	my_tube1.diameter = _tube_diameter[d];
-	my_tube2.diameter = _tube_diameter[d];
-	my_tube3.diameter = _tube_diameter[d];
-	my_tube4.diameter = _tube_diameter[d];
-	my_tube5.diameter = _tube_diameter[d];
-	my_tube6.diameter = _tube_diameter[d];
-	my_tube7.diameter = _tube_diameter[d];
+	my_tube1.diameter = _tube_diameter[c_index];
+	my_tube2.diameter = _tube_diameter[c_index];
+	my_tube3.diameter = _tube_diameter[c_index];
+	my_tube4.diameter = _tube_diameter[c_index];
+	my_tube5.diameter = _tube_diameter[c_index];
+	my_tube6.diameter = _tube_diameter[c_index];
+	my_tube7.diameter = _tube_diameter[c_index];
 
 
 	int l = std::rand() % _tube_length.size(); // index related to the length of the tube
 	float length = _tube_length[l];
 
 	//int c = std::rand() % _tube_chirality.size(); // index related to the chirality of the tube
-	my_tube1.chirality= _tube_chirality[d];
-	my_tube2.chirality= _tube_chirality[d];
-	my_tube3.chirality= _tube_chirality[d];
-	my_tube4.chirality= _tube_chirality[d];
-	my_tube5.chirality= _tube_chirality[d];
-	my_tube6.chirality= _tube_chirality[d];
-	my_tube7.chirality= _tube_chirality[d];
+	my_tube1.chirality= _tube_chirality[c_index];
+	my_tube2.chirality= _tube_chirality[c_index];
+	my_tube3.chirality= _tube_chirality[c_index];
+	my_tube4.chirality= _tube_chirality[c_index];
+	my_tube5.chirality= _tube_chirality[c_index];
+	my_tube6.chirality= _tube_chirality[c_index];
+	my_tube7.chirality= _tube_chirality[c_index];
 
 	// set drop orientation of the tube
 	float angle = parallel ? 0 : (float(std::rand() % 1000) / 1000. * pi);
@@ -507,7 +514,7 @@ void cnt_mesh::add_bundle_in_xz(bool parallel) {
 		int sl = std::rand() % _section_length.size();
 		btScalar sec_length_plus_distances = 1. * _section_length[sl];
 
-		colShape = _tube_section_collision_shapes[d][sl];
+		colShape = _tube_section_collision_shapes[c_index][sl];
 
 		btScalar mass = density * _section_length[sl];
 
@@ -695,9 +702,16 @@ void cnt_mesh::add_single_tube_in_xz(bool parallel) {
 	tubes.push_back(tube());
 	tube& my_tube = tubes.back();
 
-	int d = std::rand() % _tube_section_collision_shapes.size(); // index related to the diameter of the tube
-	my_tube.diameter = _tube_diameter[d];
-	my_tube.chirality = _tube_chirality[d];
+	int d = std::rand() % 100; // index related to the diameter of the tube
+	int c_index = 0;
+	for(int i =0; i<_tube_section_collision_shapes.size(); i++){
+		if(_chirality_prob[i] >= d)
+			break;
+		else
+			c_index++;
+	}
+	my_tube.diameter = _tube_diameter[c_index];
+	my_tube.chirality = _tube_chirality[c_index];
 
 	int l = std::rand() % _tube_length.size(); // index related to the length of the tube
 	float length = _tube_length[l];
@@ -726,7 +740,7 @@ void cnt_mesh::add_single_tube_in_xz(bool parallel) {
 		int sl = std::rand() % _section_length.size();
 		btScalar sec_length_plus_distances = 1. * _section_length[sl];
 
-		colShape = _tube_section_collision_shapes[d][sl];
+		colShape = _tube_section_collision_shapes[c_index][sl];
 
 		btScalar mass = density * _section_length[sl];
 

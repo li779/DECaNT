@@ -10,6 +10,7 @@
 
     "number of chirality": 1,
     "cnt chirality": [4,2],
+    "chirality probability [percentage]": 99,
     "cnt intertube spacing [nm]":0.1,
     "cnt total length [nm]": [100,100],
     "cnt section length [nm]": [7,12],

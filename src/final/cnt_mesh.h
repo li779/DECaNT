@@ -46,6 +46,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::vector<float> _section_length;
 	std::vector<float> _tube_length;
 	std::vector<std::vector<int>> _tube_chirality;
+	std::vector<int> _chirality_prob;
 	
 	std::vector<std::vector<btCollisionShape*>> _tube_section_collision_shapes; // first index determines the diameter, the second index determines the length of the section
 
@@ -99,12 +100,16 @@ struct cnt_mesh : public CommonRigidBodyBase
 		_half_Lz = container_half_width;
 		
 		int num_chirality = _json_prop["number of chirality"];
+		int probability = 0;
 		for (int i = 0;i<num_chirality;i++){
 			std::vector<int> chir;
 			chir.push_back(_json_prop["cnt chirality"][2*i]);
 			chir.push_back(_json_prop["cnt chirality"][2*i+1]);
 			_tube_chirality.push_back(chir);
 			_tube_diameter.push_back(calc_diam(chir[0],chir[1]));
+			int next_prob = _json_prop["chirality probability [percentage]"][i];
+			probability += next_prob;
+			_chirality_prob.push_back(probability);
 		}
 		//_tube_diameter.push_back(float(_json_prop["cnt diameter [nm]"]));
 
