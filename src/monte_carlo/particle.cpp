@@ -76,6 +76,7 @@ namespace mc
       new_scat_ptr = _scat_ptr->update_state(max_hop_radius);
       
       if (new_scat_ptr!=_scat_ptr){
+        scatter_times ++;
         _scat_ptr = new_scat_ptr;
         _pos = _scat_ptr->pos();
       }

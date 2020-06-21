@@ -50,6 +50,14 @@ private:
 
   bool isDisolved = false;
 
+  // total number of scattering
+  int scatter_times = 0;
+
+  // // past accumulative displacement
+  // arma::vec _past_delta_pos{0,0,0};
+
+  // arma::vec _total_delta_pos{0,0,0};
+
 public:
   particle() : _scat_ptr(nullptr), _pos({0, 0, 0}), _old_pos({0, 0, 0}), _ff_time(0), _heading_right(true), _velocity(0), _delta_pos({0,0,0}) {};
 
@@ -92,10 +100,10 @@ public:
   // set position of the particle and set the old position into _old_pos
   void set_pos(const arma::vec& pos) { _pos = pos; };
 
-  // // set an element of particle position and set the old position into _old_pos
+  // set an element of particle position and set the old position into _old_pos
   void set_pos(const int& i, const double& value) { _pos(i) = value; };
 
-  // // set the old position of the particle.
+  // set the old position of the particle.
   void set_old_pos(const arma::vec& old_pos) { _old_pos = old_pos; };
 
   // return the free flight time until the next scattering
@@ -113,6 +121,9 @@ public:
   // update incremental displacement of the particle.
   void update_delta_pos() { _delta_pos += pos() - old_pos(); };
 
+  // // update incremental total displacement of the particle.
+  // void update_past_delta_pos() { _past_delta_pos += _delta_pos; };
+
   // update diffusion length after trapped in a quenching site
   void update_diff_len() {_diff_len = pos() - init_pos();};
 
@@ -125,6 +136,15 @@ public:
 
   // get the i'th element of the incremental dispalcement of the particle
   const double& delta_pos(const int& i) const { return _delta_pos(i); };
+
+  // // get total displacement of particle
+  // // TODO Use this function with extra care.
+  // const arma::vec& total_displacement() const { arma::vec _total_delta_pos = _delta_pos + _past_delta_pos; return _total_delta_pos; };
+
+  // // get the i'th element of the incremental dispalcement of the particle
+  // const double& total_displacement(const int& i) const { arma::vec _total_delta_pos = _delta_pos + _past_delta_pos; return _total_delta_pos(i); };
+
+  const int& scatter_time() const {return scatter_times;};
 
 }; //particle class
 

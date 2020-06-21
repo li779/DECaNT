@@ -1033,6 +1033,8 @@ private:
   // save the displacement of individual particles in kubo simulation
   void kubo_save_individual_particle_dispalcements();
 
+  void kubo_save_individual_particle_positions();
+
   // save the average displacement of particles in kubo simulation
   void kubo_save_avg_dispalcement_squared();
 
@@ -1041,6 +1043,8 @@ private:
   void kubo_save_diffusion_length();
 
   bool check_scat_tab(std::experimental::filesystem::path path_ref);
+
+  void print_exciton_scatter_times();
 
   scattering_struct recovery_scatt_table(std::experimental::filesystem::path path, const cnt& d_cnt, const cnt& a_cnt);
 

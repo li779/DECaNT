@@ -305,7 +305,9 @@ namespace mc
 
     domain_t removal_domain;
     removal_domain.first = {x[1], y[1], z[1]};
+    std::cout << "remove domain lower limit:  x: " << x[1] << " , y: " << y[1] << " , z: " << z[1] << std::endl;
     removal_domain.second = {x[n-1], y[n-1], z[n-1]};
+    std::cout << "remove domain upper limit:  x: " << x[n-1] << " , y: " << y[n-1] << " , z: " << z[n-1] << std::endl;
 
     return removal_domain;
   }
@@ -395,11 +397,15 @@ namespace mc
         p.update_delta_pos();
 
         if (arma::any(p.pos()<_removal_domain.first) || arma::any(_removal_domain.second < p.pos())){
+          std::cout << "remove particles at:  x: " << p.pos()[0] << " , y: " << p.pos()[1] << " , z: " << p.pos()[2];
           int dice = std::rand() % _inject_scats.size();
           const scatterer* s = _inject_scats[dice];
           arma::vec pos = s->pos();
           p.set_pos(pos);
+          p.set_old_pos(pos);
+          // p.update_past_delta_pos();  add total displacement of last journey to past delta pos
           p.set_scatterer(s);
+          std::cout << "to:  x: " << p.pos()[0] << " , y: " << p.pos()[1] << " , z: " << p.pos()[2] << std::endl;
         }
       }
     }
@@ -440,6 +446,44 @@ namespace mc
       _displacement_file_x << "," << p.delta_pos(0);
       _displacement_file_y << "," << p.delta_pos(1);
       _displacement_file_z << "," << p.delta_pos(2);
+    }
+    _displacement_file_x << std::endl;
+    _displacement_file_y << std::endl;
+    _displacement_file_z << std::endl;
+  };
+
+  // save the displacement of individual particles in kubo simulation
+  void monte_carlo::kubo_save_individual_particle_positions() {
+    if (! _displacement_file_x.is_open()) {
+      _displacement_file_x.open(_output_directory.path() / "particle_position.x.dat", std::ios::out);
+      _displacement_file_y.open(_output_directory.path() / "particle_position.y.dat", std::ios::out);
+      _displacement_file_z.open(_output_directory.path() / "particle_position.z.dat", std::ios::out);
+
+      _displacement_file_x << std::showpos << std::scientific;
+      _displacement_file_y << std::showpos << std::scientific;
+      _displacement_file_z << std::showpos << std::scientific;
+
+      _displacement_file_x << "time";
+      _displacement_file_y << "time";
+      _displacement_file_z << "time";
+      for (int i=0; i<int(_particle_list.size()); ++i){
+        _displacement_file_x << "," << i;
+        _displacement_file_y << "," << i;
+        _displacement_file_z << "," << i;
+      }
+      _displacement_file_x << std::endl;
+      _displacement_file_y << std::endl;
+      _displacement_file_z << std::endl;
+    }
+
+    _displacement_file_x << time();
+    _displacement_file_y << time();
+    _displacement_file_z << time();
+
+    for (const auto& p: _particle_list) {
+      _displacement_file_x << "," << p.pos(0);
+      _displacement_file_y << "," << p.pos(1);
+      _displacement_file_z << "," << p.pos(2);
     }
     _displacement_file_x << std::endl;
     _displacement_file_y << std::endl;
@@ -532,6 +576,14 @@ namespace mc
         return true;
     }
     return false;
+  }
+
+  void monte_carlo::print_exciton_scatter_times(){
+    int total =0;
+    for (const auto& p : _particle_list){
+      total += p.scatter_time();
+    }
+    std::cout << "average scatter times of exciton is " << (double)total/(double)_particle_list.size() << std::endl;
   }
 
 } // end of namespace mc
