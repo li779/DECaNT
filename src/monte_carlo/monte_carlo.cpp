@@ -318,6 +318,9 @@ namespace mc
     _max_hopping_radius = double(_json_prop["max hopping radius [m]"]);
     std::cout << "maximum hopping radius: " << _max_hopping_radius * 1.e9 << " [nm]\n";
 
+    _max_dissolving_radius = double(_json_prop["max dissolving radius [m]"]);
+    std::cout << "maximum dissolving radius: " << _max_dissolving_radius * 1.e9 << " [nm]\n";
+
     _particle_velocity = _json_prop["exciton velocity [m/s]"];
     std::cout << "exciton velocity [m/s]: " << _particle_velocity << std::endl;
 
@@ -392,7 +395,7 @@ namespace mc
       for (unsigned i = 0; i < _particle_list.size(); ++i) {
         particle& p = _particle_list[i];
         
-        p.step(dt, _all_scat_list, _max_hopping_radius);
+        p.step(dt, _all_scat_list, _max_hopping_radius, _max_dissolving_radius);
         
         p.update_delta_pos();
 
@@ -454,40 +457,40 @@ namespace mc
 
   // save the displacement of individual particles in kubo simulation
   void monte_carlo::kubo_save_individual_particle_positions() {
-    if (! _displacement_file_x.is_open()) {
-      _displacement_file_x.open(_output_directory.path() / "particle_position.x.dat", std::ios::out);
-      _displacement_file_y.open(_output_directory.path() / "particle_position.y.dat", std::ios::out);
-      _displacement_file_z.open(_output_directory.path() / "particle_position.z.dat", std::ios::out);
+    if (! _position_file_x.is_open()) {
+      _position_file_x.open(_output_directory.path() / "particle_position.x.dat", std::ios::out);
+      _position_file_y.open(_output_directory.path() / "particle_position.y.dat", std::ios::out);
+      _position_file_z.open(_output_directory.path() / "particle_position.z.dat", std::ios::out);
 
-      _displacement_file_x << std::showpos << std::scientific;
-      _displacement_file_y << std::showpos << std::scientific;
-      _displacement_file_z << std::showpos << std::scientific;
+      _position_file_x << std::showpos << std::scientific;
+      _position_file_y << std::showpos << std::scientific;
+      _position_file_z << std::showpos << std::scientific;
 
-      _displacement_file_x << "time";
-      _displacement_file_y << "time";
-      _displacement_file_z << "time";
+      _position_file_x << "time";
+      _position_file_y << "time";
+      _position_file_z << "time";
       for (int i=0; i<int(_particle_list.size()); ++i){
-        _displacement_file_x << "," << i;
-        _displacement_file_y << "," << i;
-        _displacement_file_z << "," << i;
+        _position_file_x << "," << i;
+        _position_file_y << "," << i;
+        _position_file_z << "," << i;
       }
-      _displacement_file_x << std::endl;
-      _displacement_file_y << std::endl;
-      _displacement_file_z << std::endl;
+      _position_file_x << std::endl;
+      _position_file_y << std::endl;
+      _position_file_z << std::endl;
     }
 
-    _displacement_file_x << time();
-    _displacement_file_y << time();
-    _displacement_file_z << time();
+    _position_file_x << time();
+    _position_file_y << time();
+    _position_file_z << time();
 
     for (const auto& p: _particle_list) {
-      _displacement_file_x << "," << p.pos(0);
-      _displacement_file_y << "," << p.pos(1);
-      _displacement_file_z << "," << p.pos(2);
+      _position_file_x << "," << p.pos(0);
+      _position_file_y << "," << p.pos(1);
+      _position_file_z << "," << p.pos(2);
     }
-    _displacement_file_x << std::endl;
-    _displacement_file_y << std::endl;
-    _displacement_file_z << std::endl;
+    _position_file_x << std::endl;
+    _position_file_y << std::endl;
+    _position_file_z << std::endl;
   };
 
   void monte_carlo::kubo_save_avg_dispalcement_squared() {

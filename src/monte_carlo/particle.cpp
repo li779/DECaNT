@@ -54,7 +54,7 @@ namespace mc
   }
 
   // step particle state for dt in time
-  void particle::step(double dt, const std::vector<scatterer>& s_list, const double& max_hop_radius) {
+  void particle::step(double dt, const std::vector<scatterer>& s_list, const double& max_hop_radius, const double& max_dissolving_radius) {
     
     _old_pos = _pos;
     const scatterer* new_scat_ptr = nullptr;
@@ -67,7 +67,7 @@ namespace mc
       
       fly(_ff_time, s_list);
 
-      if(_scat_ptr->check_quenching(max_hop_radius)){
+      if(_scat_ptr->check_quenching(max_dissolving_radius)){
         set_disolved();
         update_diff_len();
         return;

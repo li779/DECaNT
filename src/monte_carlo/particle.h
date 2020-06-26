@@ -116,7 +116,7 @@ public:
   void update_ff_time() { _ff_time = _scat_ptr->ff_time(); };
 
   // step particle state for dt in time
-  void step(double dt, const std::vector<scatterer>& s_list, const double& max_hop_radius);
+  void step(double dt, const std::vector<scatterer>& s_list, const double& max_hop_radius, const double& max_dissolving_radius);
 
   // update incremental displacement of the particle.
   void update_delta_pos() { _delta_pos += pos() - old_pos(); };

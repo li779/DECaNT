@@ -49,6 +49,9 @@ private:
   // maximum hopping radius considered in the simulation
   double _max_hopping_radius;
 
+  // maximum dissolving radius considered in the simulation
+  double _max_dissolving_radius;
+
   // input properties of the whole mc simulation in json format
   nlohmann::json _json_prop;  
 
@@ -116,6 +119,9 @@ private:
 
   // file to record particle dispalcements
   std::fstream _displacement_file_x, _displacement_file_y, _displacement_file_z;
+
+  // file to record particle positions
+  std::fstream _position_file_x, _position_file_y, _position_file_z;
 
   // file to record average of square of displacements in each direction
   std::fstream _displacement_squard_file;
@@ -424,7 +430,7 @@ private:
     {
       #pragma omp for
       for (unsigned i=0; i<_particle_list.size(); ++i){
-        _particle_list[i].step(dt, _all_scat_list, _max_hopping_radius);
+        _particle_list[i].step(dt, _all_scat_list, _max_hopping_radius, _max_dissolving_radius);
       }
     }
 
@@ -913,7 +919,7 @@ private:
     y1 = ymin + double(_n_seg - 1) * dy;
     y2 = ymax;
     while (p_list.front().pos(1)<y1){
-      p_list.front().step(dt, _all_scat_list, _max_hopping_radius);
+      p_list.front().step(dt, _all_scat_list, _max_hopping_radius, _max_dissolving_radius);
       file << "   " << p_list.front().pos(0) << " " << p_list.front().pos(1) << " " << p_list.front().pos(2) << "\n";
     }
     file << std::endl;
@@ -981,7 +987,7 @@ private:
 				  num_left=p_list.size();
 			  }
 			  else {
-				  p_list[i].step(dt, _all_scat_list, _max_hopping_radius);
+				  p_list[i].step(dt, _all_scat_list, _max_hopping_radius, _max_dissolving_radius);
 				  double square_displace = (p_list[i].pos(0) - orig_pos0[i]) * (p_list[i].pos(0) - orig_pos0[i]) +
 					  (p_list[i].pos(1) - orig_pos1[i]) * (p_list[i].pos(1) - orig_pos1[i]) +
 					  (p_list[i].pos(2) - orig_pos2[i]) * (p_list[i].pos(2) - orig_pos2[i]);
