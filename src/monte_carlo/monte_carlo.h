@@ -39,6 +39,7 @@ private:
   typedef std::experimental::filesystem::directory_entry directory_t;
   typedef std::pair<arma::vec, arma::vec> domain_t;
   typedef std::vector<std::vector<scatterer*>> bucket_t;
+  typedef std::vector<std::vector<const scatterer*>> const_bucket_t;
   typedef std::vector<std::vector<scattering_struct>> scatt_t;
   typedef std::pair<double, double> limit_t;
   typedef std::vector<std::vector<int>> map_t;
@@ -109,7 +110,7 @@ private:
   //**************************************************************
 
   // list of scatterers in the injection region
-  std::vector<const scatterer *> _inject_scats;
+  const_bucket_t _inject_scats;
 
   // domain limits to remove the particles and inject them in the injection region
   domain_t _removal_domain;
@@ -1022,7 +1023,7 @@ private:
   void kubo_init();
 
   // slice the domain into n sections in each direction, and return a list of scatterers in the center region as the injection region
-  std::vector<const scatterer *> injection_region(const std::vector<scatterer>& all_scat, const domain_t domain, const int n);
+  const_bucket_t injection_region(const std::vector<scatterer>& all_scat, const domain_t domain, const int n);
 
   // slice the domain into n sections in each direction, and return the domain that leaves only 1 section from each side
   domain_t get_removal_domain(const domain_t domain, const int n);

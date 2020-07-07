@@ -19,6 +19,7 @@
 
 namespace mc
 {
+  typedef std::vector<std::vector<const scatterer*>> const_bucket_t;
 
   // high level method to calculate proper scattering table
   monte_carlo::scatt_t monte_carlo::create_scattering_table(nlohmann::json j) {
@@ -259,7 +260,8 @@ namespace mc
   // };
 
   // slice the domain into n sections in each direction, and return a list of scatterers in the center region as the injection region
-  std::vector<const scatterer *> monte_carlo::injection_region(const std::vector<scatterer> &all_scat, const domain_t domain, const int n) {
+  // Note: chirality map must create before using the function
+  const_bucket_t monte_carlo::injection_region(const std::vector<scatterer> &all_scat, const domain_t domain, const int n) {
     assert((n > 0) && (n % 2 == 1));
 
     double xmin = domain.first(0), ymin = domain.first(1), zmin = domain.first(2);
@@ -273,14 +275,24 @@ namespace mc
       y.push_back(double(i) * dy + ymin);
       z.push_back(double(i) * dz + zmin);
     }
+    
+    const_bucket_t inject_list;
 
-    std::vector<const scatterer *> inject_list;
+    auto find_indx = [this](const scatterer& s) -> int{
+      for (int i = 0; i < chirality_map.size(); i++){
+        arma::vec chiral({chirality_map[i][0],chirality_map[i][1]});
+        if (!arma::any(s.chirality() != chiral)) return i;
+        }
+          std::cout << "Panic!! can't find chirality in chirality map"<< std::endl;
+    };
+
+    inject_list.resize(chirality_map.size());
 
     for (const auto& s : all_scat) {
       if (x[n / 2] <= s.pos(0) && s.pos(0) <= x[n / 2 + 1] &&
           y[n / 2] <= s.pos(1) && s.pos(1) <= y[n / 2 + 1] &&
           z[n / 2] <= s.pos(2) && s.pos(2) <= z[n / 2 + 1])
-        inject_list.push_back(&s);
+        inject_list[find_indx(s)].push_back(&s);
     }
 
 
@@ -378,9 +390,28 @@ namespace mc
   // create particles for kubo simulation
   void monte_carlo::kubo_create_particles() {
     int n_particle = _json_prop["number of particles for kubo simulation"];
+    int total = 0;
+    std::vector<int> size(_inject_scats.size());
+
+    for (int i=0; i<_inject_scats.size(); i++){
+      size[i] = _inject_scats[i].size();
+      total += size[i];
+    }
+    auto func = [size](int dice)->std::vector<int>{
+      std::vector<int> res(2);
+      int index;
+      while(dice>=size[index]){
+        dice -= size[index];
+        index++;
+      }
+      res = {index,dice};
+      return (res);
+    };
+
     for (int i=0; i<n_particle; ++i) {
-      int dice = std::rand() % _inject_scats.size();
-      const scatterer *s = _inject_scats[dice];
+      int dice = std::rand() % total;
+      std::vector<int> res = func(dice);
+      const scatterer *s = _inject_scats[res[0]][res[1]];
       arma::vec pos = s->pos();
       _particle_list.push_back(particle(pos, s, _particle_velocity));
       _particle_list.back().set_init_pos(pos);
@@ -405,13 +436,13 @@ namespace mc
           bool condition = true;
           const scatterer* s = nullptr;
         // std::cout << "chiral" << old_scat->chirality()[0] << "," << old_scat->chirality()[1] << ",";
-          do{
+          //do{
             int dice = std::rand() % _inject_scats.size();
             s = _inject_scats[dice];
-            const arma::vec old_chiral = old_scat->chirality();
-            const arma::vec new_chiral = s->chirality();
-            condition = arma::any(old_chiral != new_chiral);
-          } while (condition);
+           // const arma::vec old_chiral = old_scat->chirality();
+            //const arma::vec new_chiral = s->chirality();
+           // condition = arma::any(old_chiral != new_chiral);
+          //} while (condition);
           arma::vec pos = s->pos();
           p.set_pos(pos);
           p.set_old_pos(pos);
@@ -459,6 +490,7 @@ namespace mc
       _displacement_file_x << "," << p.delta_pos(0);
       _displacement_file_y << "," << p.delta_pos(1);
       _displacement_file_z << "," << p.delta_pos(2);
+      // p.check_delta_pos(_max_hopping_radius);
     }
     _displacement_file_x << std::endl;
     _displacement_file_y << std::endl;

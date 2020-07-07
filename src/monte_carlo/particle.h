@@ -5,6 +5,7 @@
 #include <array>
 #include <memory>
 #include <armadillo>
+#include <math.h>
 
 #include "./free_flight.h"
 #include "./scatterer.h"
@@ -120,6 +121,18 @@ public:
 
   // update incremental displacement of the particle.
   void update_delta_pos() { _delta_pos += pos() - old_pos(); };
+
+  bool check_delta_pos(const double& max_hop_radius) const {
+    double displace = std::sqrt(pow(pos(0) - old_pos(0),2) + pow(pos(1) - old_pos(1),2) + pow(pos(2) - old_pos(2),2));
+    if (max_hop_radius >= displace)
+      return true;
+    else{
+        std::cout<< "warning: exciton moved: " << displace << std::endl;
+        std::cout << " particles from:  x: " << old_pos(0) << " , y: " << old_pos(1) << " , z: " << old_pos(2);
+        std::cout << "to:  x: " << pos(0) << " , y: " << pos(1) << " , z: " << pos(2) << std::endl;
+        return false;
+      }
+    };
 
   // // update incremental total displacement of the particle.
   // void update_past_delta_pos() { _past_delta_pos += _delta_pos; };
