@@ -116,7 +116,11 @@ namespace mc
 
     scattering_struct scat_table(rate,theta,z_shift,axis_shift_1,axis_shift_2, d_cnt.chirality(), a_cnt.chirality());
 
-    //scat_table.save_visible(_output_directory.path());
+    std::experimental::filesystem::path path_out =_output_directory.path();
+    path_out /= std::to_string(d_cnt.chirality()[0])+std::to_string(d_cnt.chirality()[1])+std::to_string(a_cnt.chirality()[0])+std::to_string(a_cnt.chirality()[1])+"scat_table";
+    std::experimental::filesystem::create_directory(path_out);
+
+    scat_table.save_visible(path_out);
     return scat_table;
   }
 
@@ -278,21 +282,13 @@ namespace mc
     
     const_bucket_t inject_list;
 
-    auto find_indx = [this](const scatterer& s) -> int{
-      for (int i = 0; i < chirality_map.size(); i++){
-        arma::vec chiral({chirality_map[i][0],chirality_map[i][1]});
-        if (!arma::any(s.chirality() != chiral)) return i;
-        }
-          std::cout << "Panic!! can't find chirality in chirality map"<< std::endl;
-    };
-
     inject_list.resize(chirality_map.size());
 
     for (const auto& s : all_scat) {
       if (x[n / 2] <= s.pos(0) && s.pos(0) <= x[n / 2 + 1] &&
           y[n / 2] <= s.pos(1) && s.pos(1) <= y[n / 2 + 1] &&
           z[n / 2] <= s.pos(2) && s.pos(2) <= z[n / 2 + 1])
-        inject_list[find_indx(s)].push_back(&s);
+        inject_list[s.chiral_index(s.chirality())].push_back(&s);
     }
 
 
@@ -395,11 +391,12 @@ namespace mc
 
     for (int i=0; i<_inject_scats.size(); i++){
       size[i] = _inject_scats[i].size();
+      std::cout << "the " <<i<<" scattering sites number: " << size[i] <<std::endl;
       total += size[i];
     }
     auto func = [size](int dice)->std::vector<int>{
       std::vector<int> res(2);
-      int index;
+      int index = 0;
       while(dice>=size[index]){
         dice -= size[index];
         index++;
@@ -433,12 +430,13 @@ namespace mc
         if (arma::any(p.pos()<_removal_domain.first) || arma::any(_removal_domain.second < p.pos())){
          // std::cout << "remove particles at:  x: " << p.pos()[0] << " , y: " << p.pos()[1] << " , z: " << p.pos()[2];
           const scatterer* old_scat = p.scat_ptr();
-          bool condition = true;
+          // bool condition = true;
           const scatterer* s = nullptr;
-        // std::cout << "chiral" << old_scat->chirality()[0] << "," << old_scat->chirality()[1] << ",";
+          std::cout << "chiral" << old_scat->chirality()[0] << "," << old_scat->chirality()[1] << ",";
           //do{
-            int dice = std::rand() % _inject_scats.size();
-            s = _inject_scats[dice];
+            int index = old_scat->chiral_index(old_scat->chirality());
+            int dice = std::rand() % _inject_scats[index].size();
+            s = _inject_scats[index][dice];
            // const arma::vec old_chiral = old_scat->chirality();
             //const arma::vec new_chiral = s->chirality();
            // condition = arma::any(old_chiral != new_chiral);
@@ -449,7 +447,7 @@ namespace mc
           // p.update_past_delta_pos();  add total displacement of last journey to past delta pos
           p.set_scatterer(s);
          // std::cout << "to:  x: " << p.pos()[0] << " , y: " << p.pos()[1] << " , z: " << p.pos()[2];
-          // std::cout << "chiral" << s->chirality()[0] << "," << s->chirality()[1] << "," << std::endl;
+           std::cout << "chiral" << s->chirality()[0] << "," << s->chirality()[1] << "," << std::endl;
         }
       }
     }
