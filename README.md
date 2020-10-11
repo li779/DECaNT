@@ -1,6 +1,7 @@
 DECaNT
 =========================================
 Project Contributers: Y. C. Li, A. H. Davoody, S.W. Belling, A. J. Gabourie, and I. Knezevic
+
 Official implementation of [DECaNT: Simulation Tool for Diffusion of Excitons in Carbon Nanotube Films](https://arxiv.org/pdf/1703.05192.pdf). 
 
 <img src="assets/discogan.png" width="600px">
@@ -75,4 +76,5 @@ Monte Carlo Simulation
 ----------------
 ### Code Structure
 Main Code is in monte_carlo folder. The whole simulation is divided into three major object: Simulation itself, exciton and scattering sites. Each object has its class with detailed attributions and methods. Simulation object is the top-layer client that will create exciton and scattering sites based on simulation metrics. The output file contains displacement and position of excitons at each time step.
+
 There are complementary code in exciton transfer and helper folder. In exciton transfer folder, codes are used in calculating Carbon Nanotube bandstructure and resonant exciton transfering. Functions will be called by Monte Carlo Simulation code to generate scattering table.
