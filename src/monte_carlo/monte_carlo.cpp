@@ -406,17 +406,16 @@ namespace mc
         if (arma::any(p.pos()<_removal_domain.first) || arma::any(_removal_domain.second < p.pos())){
          // std::cout << "remove particles at:  x: " << p.pos()[0] << " , y: " << p.pos()[1] << " , z: " << p.pos()[2];
           const scatterer* old_scat = p.scat_ptr();
-          // bool condition = true;
+          bool condition = true;
           const scatterer* s = nullptr;
-          //std::cout << "chiral" << old_scat->chirality()[0] << "," << old_scat->chirality()[1] << ",";
-          //do{
-            int index = old_scat->chiral_index(old_scat->chirality());
-            int dice = std::rand() % _inject_scats[index].size();
-            s = _inject_scats[index][dice];
-           // const arma::vec old_chiral = old_scat->chirality();
-            //const arma::vec new_chiral = s->chirality();
-           // condition = arma::any(old_chiral != new_chiral);
-          //} while (condition);
+        // std::cout << "chiral" << old_scat->chirality()[0] << "," << old_scat->chirality()[1] << ",";
+          do{
+            int dice = std::rand() % _inject_scats.size();
+            s = _inject_scats[dice];
+            const arma::vec old_chiral = old_scat->chirality();
+            const arma::vec new_chiral = s->chirality();
+            condition = arma::any(old_chiral != new_chiral);
+          } while (condition);
           arma::vec pos = s->pos();
           p.set_pos(pos);
           p.set_old_pos(pos);
