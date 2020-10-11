@@ -97,10 +97,13 @@ private:
   // file objects for saving population profile and current data
   std::fstream _pop_file, _curr_file;
 
+  // excitons' group velocity. Normally close to 0
   double _particle_velocity=0;
 
+  // number of quenching sites
   int _quenching_sites_num = 0;
 
+  // a mapping of index and chirality, used for constructing multi-dimension scatter tables
   map_t chirality_map;
 
   //**************************************************************
@@ -510,6 +513,7 @@ private:
 
   }
 
+  // method to associate each scattering site to its scatter table.
   void set_scat_tables(scatt_t& _scat_tabs, map_t& _chirality_map, std::vector<scatterer>& scat_list) {
     int tube_size = size(_scat_tabs);
     for (auto& s : scat_list) {

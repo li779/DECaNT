@@ -49,6 +49,7 @@ private:
   // final diffusion length
   arma::vec _diff_len{0,0,0};
 
+  // bool indicator whether exciton is quenched.
   bool isDisolved = false;
 
   // total number of scattering
@@ -77,8 +78,10 @@ public:
   // return the pointer to the scatterer object
   const scatterer* scat_ptr() const { return _scat_ptr; };
 
+  // set exciton to be quenched.
   void set_disolved() {isDisolved = true; };
 
+  // return whether exciton is quenched
   const bool disolved() {return isDisolved; }
 
   // get position of the particle
@@ -87,6 +90,7 @@ public:
   // get initial position of particle
   const arma::vec& init_pos() const { return _init_pos; };
 
+  // set initial position of exciton.
   void set_init_pos(const arma::vec& pos) {_init_pos = pos; };
 
   // get position of the particle
@@ -122,6 +126,7 @@ public:
   // update incremental displacement of the particle.
   void update_delta_pos() { _delta_pos += pos() - old_pos(); };
 
+  // check if exciton is hopping outside of radius.
   bool check_delta_pos(const double& max_hop_radius) const {
     double displace = std::sqrt(pow(pos(0) - old_pos(0),2) + pow(pos(1) - old_pos(1),2) + pow(pos(2) - old_pos(2),2));
     if (max_hop_radius >= displace)
@@ -140,8 +145,10 @@ public:
   // update diffusion length after trapped in a quenching site
   void update_diff_len() {_diff_len = pos() - init_pos();};
 
+  // return value of diffusion length
   const arma::vec& diff_len() {return _diff_len;};
 
+  // get ith value of diffusion length
   const double& diff_len(const int& i) const {return _diff_len(i);};
 
   // get the incremental dispalcement of the particle
@@ -157,6 +164,7 @@ public:
   // // get the i'th element of the incremental dispalcement of the particle
   // const double& total_displacement(const int& i) const { arma::vec _total_delta_pos = _delta_pos + _past_delta_pos; return _total_delta_pos(i); };
 
+  // return the total scatter time of this exciton
   const int& scatter_time() const {return scatter_times;};
 
 }; //particle class

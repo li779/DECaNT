@@ -84,6 +84,7 @@ namespace mc
 
   };
 
+  // method reading from scatter table directory and construct scatter table.
   scattering_struct monte_carlo::recovery_scatt_table(std::experimental::filesystem::path path, const cnt& d_cnt, const cnt& a_cnt) {
     path /= "scat_table";
 
@@ -399,7 +400,7 @@ namespace mc
       for (unsigned i = 0; i < _particle_list.size(); ++i) {
         particle& p = _particle_list[i];
         
-        p.step(dt, _all_scat_list, _max_hopping_radius);
+        p.step(dt, _all_scat_list, _max_hopping_radius, _max_dissolving_radius);
         
         p.update_delta_pos();
 
@@ -509,7 +510,7 @@ namespace mc
 
   void monte_carlo::kubo_save_avg_dispalcement_squared() {
     if (!_displacement_squard_file.is_open()) {
-      _displacement_squard_file.open(_output_directory.path() / "particle_dispalcement.avg.squared.dat", std::ios::out);
+      _displacement_squard_file.open(_output_directory.path() / "particle_displacement.avg.squared.dat", std::ios::out);
 
       _displacement_squard_file << std::showpos << std::scientific;
       
@@ -536,6 +537,7 @@ namespace mc
     _displacement_squard_file << time() << "," << avg_x2 << "," << avg_y2 << "," << avg_z2 << std::endl;
   }
 
+  // TODO: the method currently not available. Error in calculation.
   void monte_carlo::kubo_save_diffusion_tensor(){
     if (!_diffusion_tensor_file.is_open()) {
       _diffusion_tensor_file.open(_output_directory.path() / "particle_diffusion_tensor.dat", std::ios::out);
@@ -567,6 +569,7 @@ namespace mc
     _diffusion_tensor_file << std::endl;
   }
 
+  // TODO: the method currently not available. Error in calculation.
   void monte_carlo::kubo_save_diffusion_length() {
     if (!_diffusion_length_file.is_open()) {
       _diffusion_length_file.open(_output_directory.path() / "particle_diffusion_length.dat", std::ios::out);
@@ -586,6 +589,7 @@ namespace mc
     
   }
 
+  // helper function to check if scatter table is saved.
   bool monte_carlo::check_scat_tab(std::experimental::filesystem::path path_ref){
 
     for(auto& p: std::experimental::filesystem::directory_iterator(_scatter_table_directory.path())){
@@ -595,6 +599,7 @@ namespace mc
     return false;
   }
 
+  // helper function calculate average scattering time per exciton during the whole simulation
   void monte_carlo::print_exciton_scatter_times(){
     int total =0;
     for (const auto& p : _particle_list){

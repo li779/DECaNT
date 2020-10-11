@@ -84,6 +84,7 @@ namespace mc
     return neighbors_list;
   };
 
+  // check if there are quenching sites in nearby region
   bool scatterer::check_quenching(const double& max_disolving_radius) const{
     for(auto& l : close_quenches){
       for (auto& s : (*l)){
@@ -98,6 +99,7 @@ namespace mc
     return false;
   };
 
+  // counting the number of neighbor
   int scatterer::no_of_neighbors(const double& max_hopping_radius) const {
     int count=0;
     

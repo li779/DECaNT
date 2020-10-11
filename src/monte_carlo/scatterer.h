@@ -29,7 +29,7 @@ private:
 	arma::vec _pos; // position of the scatterer
   arma::vec _orientation; // orientation of the scattering object site
   arma::vec _chirality; // chirality of scattering site
-  bool _is_quench = false;
+  bool _is_quench = false; // whether it acts as a quenching site or not
   
 public:
   // pointer to the scatterer on the right side (one side) of the current scatterer
@@ -48,6 +48,7 @@ public:
   scatt_t scat_tab;
   //const scattering_struct* scat_tab = nullptr;
 
+  // a one-to-one mapping of index and chirality
   map_t chirality_map;
 
 public:
