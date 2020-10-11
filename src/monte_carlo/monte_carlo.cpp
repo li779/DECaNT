@@ -290,7 +290,10 @@ namespace mc
           z[n / 2] <= s.pos(2) && s.pos(2) <= z[n / 2 + 1])
         inject_list[s.chiral_index(s.chirality())].push_back(&s);
     }
-
+  
+    for (int i = 0; i < inject_list.size(); i++){
+      std::cout << i << "th chirality: " << inject_list[i].size() << std::endl;
+    }
 
     return inject_list;
   }
@@ -374,7 +377,7 @@ namespace mc
     create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets, _quenching_list, _q_buckets);
     //_scat_tables = create_scattering_table(_json_prop);
     //set_scat_table(_scat_tables[0][0], _all_scat_list);
-    set_max_rate(_max_hopping_radius, _all_scat_list);
+    //set_max_rate(_max_hopping_radius, _all_scat_list);
 
     int n = _json_prop["number of sections for injection region"];
     _inject_scats = injection_region(_all_scat_list, _domain, n);
@@ -432,7 +435,7 @@ namespace mc
           const scatterer* old_scat = p.scat_ptr();
           // bool condition = true;
           const scatterer* s = nullptr;
-          std::cout << "chiral" << old_scat->chirality()[0] << "," << old_scat->chirality()[1] << ",";
+          //std::cout << "chiral" << old_scat->chirality()[0] << "," << old_scat->chirality()[1] << ",";
           //do{
             int index = old_scat->chiral_index(old_scat->chirality());
             int dice = std::rand() % _inject_scats[index].size();
@@ -447,7 +450,7 @@ namespace mc
           // p.update_past_delta_pos();  add total displacement of last journey to past delta pos
           p.set_scatterer(s);
          // std::cout << "to:  x: " << p.pos()[0] << " , y: " << p.pos()[1] << " , z: " << p.pos()[2];
-           std::cout << "chiral" << s->chirality()[0] << "," << s->chirality()[1] << "," << std::endl;
+          // std::cout << "chiral" << s->chirality()[0] << "," << s->chirality()[1] << "," << std::endl;
         }
       }
     }
