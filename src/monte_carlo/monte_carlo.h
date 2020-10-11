@@ -49,6 +49,9 @@ private:
   // maximum hopping radius considered in the simulation
   double _max_hopping_radius;
 
+  // maximum dissolving radius considered in the simulation
+  double _max_dissolving_radius;
+
   // input properties of the whole mc simulation in json format
   nlohmann::json _json_prop;  
 
