@@ -19,7 +19,6 @@
 
 namespace mc
 {
-  typedef std::vector<std::vector<const scatterer*>> const_bucket_t;
 
   // high level method to calculate proper scattering table
   monte_carlo::scatt_t monte_carlo::create_scattering_table(nlohmann::json j) {
@@ -264,8 +263,7 @@ namespace mc
   // };
 
   // slice the domain into n sections in each direction, and return a list of scatterers in the center region as the injection region
-  // Note: chirality map must create before using the function
-  const_bucket_t monte_carlo::injection_region(const std::vector<scatterer> &all_scat, const domain_t domain, const int n) {
+  std::vector<const scatterer *> monte_carlo::injection_region(const std::vector<scatterer> &all_scat, const domain_t domain, const int n) {
     assert((n > 0) && (n % 2 == 1));
 
     double xmin = domain.first(0), ymin = domain.first(1), zmin = domain.first(2);
@@ -279,21 +277,16 @@ namespace mc
       y.push_back(double(i) * dy + ymin);
       z.push_back(double(i) * dz + zmin);
     }
-    
-    const_bucket_t inject_list;
 
-    inject_list.resize(chirality_map.size());
+    std::vector<const scatterer *> inject_list;
 
     for (const auto& s : all_scat) {
       if (x[n / 2] <= s.pos(0) && s.pos(0) <= x[n / 2 + 1] &&
           y[n / 2] <= s.pos(1) && s.pos(1) <= y[n / 2 + 1] &&
           z[n / 2] <= s.pos(2) && s.pos(2) <= z[n / 2 + 1])
-        inject_list[s.chiral_index(s.chirality())].push_back(&s);
+        inject_list.push_back(&s);
     }
-  
-    for (int i = 0; i < inject_list.size(); i++){
-      std::cout << i << "th chirality: " << inject_list[i].size() << std::endl;
-    }
+
 
     return inject_list;
   }
@@ -377,7 +370,7 @@ namespace mc
     create_scatterer_buckets(_domain, _max_hopping_radius, _all_scat_list, _scat_buckets, _quenching_list, _q_buckets);
     //_scat_tables = create_scattering_table(_json_prop);
     //set_scat_table(_scat_tables[0][0], _all_scat_list);
-    //set_max_rate(_max_hopping_radius, _all_scat_list);
+    set_max_rate(_max_hopping_radius, _all_scat_list);
 
     int n = _json_prop["number of sections for injection region"];
     _inject_scats = injection_region(_all_scat_list, _domain, n);
@@ -389,29 +382,9 @@ namespace mc
   // create particles for kubo simulation
   void monte_carlo::kubo_create_particles() {
     int n_particle = _json_prop["number of particles for kubo simulation"];
-    int total = 0;
-    std::vector<int> size(_inject_scats.size());
-
-    for (int i=0; i<_inject_scats.size(); i++){
-      size[i] = _inject_scats[i].size();
-      std::cout << "the " <<i<<" scattering sites number: " << size[i] <<std::endl;
-      total += size[i];
-    }
-    auto func = [size](int dice)->std::vector<int>{
-      std::vector<int> res(2);
-      int index = 0;
-      while(dice>=size[index]){
-        dice -= size[index];
-        index++;
-      }
-      res = {index,dice};
-      return (res);
-    };
-
     for (int i=0; i<n_particle; ++i) {
-      int dice = std::rand() % total;
-      std::vector<int> res = func(dice);
-      const scatterer *s = _inject_scats[res[0]][res[1]];
+      int dice = std::rand() % _inject_scats.size();
+      const scatterer *s = _inject_scats[dice];
       arma::vec pos = s->pos();
       _particle_list.push_back(particle(pos, s, _particle_velocity));
       _particle_list.back().set_init_pos(pos);
@@ -426,7 +399,7 @@ namespace mc
       for (unsigned i = 0; i < _particle_list.size(); ++i) {
         particle& p = _particle_list[i];
         
-        p.step(dt, _all_scat_list, _max_hopping_radius, _max_dissolving_radius);
+        p.step(dt, _all_scat_list, _max_hopping_radius);
         
         p.update_delta_pos();
 
@@ -491,7 +464,6 @@ namespace mc
       _displacement_file_x << "," << p.delta_pos(0);
       _displacement_file_y << "," << p.delta_pos(1);
       _displacement_file_z << "," << p.delta_pos(2);
-      // p.check_delta_pos(_max_hopping_radius);
     }
     _displacement_file_x << std::endl;
     _displacement_file_y << std::endl;
