@@ -225,7 +225,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 		return avgY/(float)num_section;
 	}
 
-	void printtube(int tube_number){
+	void printtube(int tube_number) {
 		int count = 0;
 		for (const auto& t : tubes) {
 			if(count == tube_number && t.isDynamic){

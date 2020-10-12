@@ -76,30 +76,30 @@ void cnt_mesh::create_z_plane() {
 	 }
 
 
-	 // create the x direction side wall planes
-	 {
-	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
-	 	m_collisionShapes.push_back(groundShape);
+	//  // create the x direction side wall planes
+	//  {
+	//  	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
+	//  	m_collisionShapes.push_back(groundShape);
 
-	 	btScalar mass(0.);
+	//  	btScalar mass(0.);
 
-	 	btTransform groundTransform;
-	 	groundTransform.setIdentity();
-	 	groundTransform.setOrigin(btVector3(-_half_Lx,0,0));
-	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-	 }
+	//  	btTransform groundTransform;
+	//  	groundTransform.setIdentity();
+	//  	groundTransform.setOrigin(btVector3(-_half_Lx,0,0));
+	//  	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+	//  }
 
-	 {
-	 	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(-1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
-	 	m_collisionShapes.push_back(groundShape);
+	//  {
+	//  	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(-1, 0, 0), 0); // plane collision shape with an offset of 0 unit from the origin
+	//  	m_collisionShapes.push_back(groundShape);
 
-	 	btScalar mass(0.);
+	//  	btScalar mass(0.);
 
-	 	btTransform groundTransform;
-	 	groundTransform.setIdentity();
-	 	groundTransform.setOrigin(btVector3(_half_Lx,0,0));
-	 	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
-	 }
+	//  	btTransform groundTransform;
+	//  	groundTransform.setIdentity();
+	//  	groundTransform.setOrigin(btVector3(_half_Lx,0,0));
+	//  	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
+	//  }
 
 	
 }
@@ -261,10 +261,11 @@ void cnt_mesh::save_one_tube(tube& t) {
 
 	int i = 0;
 	btTransform trans;
+	// std::cout << "position x: ";
 	for (const auto& b : t.bodies) {
 		b->getMotionState()->getWorldTransform(trans);
 		position_file << trans.getOrigin().x() << " , " << trans.getOrigin().y() << " , " << trans.getOrigin().z() << " ; ";
-
+		// std::cout << trans.getOrigin().x() << " , ";
 //		btQuaternion qt = trans.getRotation();
 //		btVector3 ax(0, 1, 0); // initial axis of the cylinder
 //		ax = ax.rotate(qt.getAxis(), qt.getAngle());
@@ -274,6 +275,7 @@ void cnt_mesh::save_one_tube(tube& t) {
 
 		chirality_file << t.chirality[0] << " , "<< t.chirality[1]  << " ; ";
 	}
+	//std::cout << std::endl;
 
 	position_file << std::endl;
 //	orientation_file << std::endl;
@@ -462,7 +464,7 @@ void cnt_mesh::add_bundle_in_xz(bool parallel) {
 	int d = std::rand() % 100; // index related to the diameter of the tube
 	int c_index = 0;
 	for(int i =0; i<_tube_section_collision_shapes.size(); i++){
-		if(_chirality_prob[i] >= d)
+		if(_chirality_prob[i] > d)
 			break;
 		else
 			c_index++;
@@ -705,7 +707,7 @@ void cnt_mesh::add_single_tube_in_xz(bool parallel) {
 	int d = std::rand() % 100; // index related to the diameter of the tube
 	int c_index = 0;
 	for(int i =0; i<_tube_section_collision_shapes.size(); i++){
-		if(_chirality_prob[i] >= d)
+		if(_chirality_prob[i] > d)
 			break;
 		else
 			c_index++;

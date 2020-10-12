@@ -49,8 +49,8 @@ int main(int argc, char* argv[]) {
 	int number_of_tubes_before_deletion = j["number of tubes before deletion"];
 	int number_of_unsaved_tubes = j["number of unsaved tubes"];
 	int number_of_bundles = j["number of bundles"];
-        int number_of_steps = j["number_of_steps"];
-        btScalar time_step = j["time_step"];
+    int number_of_steps = j["number_of_steps"];
+    btScalar time_step = j["time_step"];
 	bool parallel = j["parallel"];
 	bool bundle = j["bundle"];
 	double spacing = j["cnt intertube spacing [nm]"];
@@ -113,6 +113,9 @@ int main(int argc, char* argv[]) {
 			
 		}
 	if(example->no_of_saved_tubes() > number_of_bundles)
+		break;
+
+	if ((example->read_Ly() > 19) && (example->no_of_saved_tubes() > 1000))
 		break;
 	}
 
