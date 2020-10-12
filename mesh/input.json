@@ -1,0 +1,20 @@
+{
+    "output directory":"~/research/mesh/cnt_mesh_fiber",
+    "keep old files":false,
+
+    "visualize":false,
+    
+    "container width [nm]":400,
+
+    "drop height [nm]": 100,
+
+    "cnt diameter [nm]":0.5,
+    "cnt total length [nm]": [200,200],
+    "cnt section length [nm]": [5,20],
+
+    "number of tubes added together": 5,
+    "number of active tubes": 1000,
+    "number of tubes before deletion": 1000,
+    "number of unsaved tubes": 1000
+
+}

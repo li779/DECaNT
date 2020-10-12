@@ -1,0 +1,28 @@
+{
+    "output directory":"../mesh/cnt_mesh_fiber_test",
+    "keep old files":false,
+
+    "visualize":false,
+    
+    "container width [nm]":100,
+
+    "drop height [nm]": 25,
+
+    "number of chirality": 1,
+    "cnt chirality": [4,2],
+    "chirality probability [percentage]":[100],
+    "cnt intertube spacing [nm]":0.2,
+    "cnt expected film thickness [nm]":19,
+    "cnt total length [nm]": [100,100],
+    "cnt section length [nm]": [7,12],
+
+    "number of tubes added together": 5,
+    "number of active bundles": 60,
+    "number of tubes before deletion": 2000,
+    "number of unsaved tubes": 450,
+    "number of bundles": 60000,
+    "number_of_steps": 10,
+    "time_step": 0.05,
+    "parallel": true,
+    "bundle": false
+}
