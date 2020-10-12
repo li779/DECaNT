@@ -1,0 +1,42 @@
+{
+    "cnts":{
+        "comment": "the cnts listed in this section ARE used in the monte carlo simulation",
+        "directory": "~/research/monte_carlo/exciton_energy/",
+        "1": {
+            "keep old results": false,
+            "chirality": [4,2],
+            "length": [10,"cnt unit cells"]
+        }
+    },
+
+  "exciton monte carlo": {
+    "mesh input directory": "~/research/mesh/cnt_mesh_fiber_random_bundle_S0.2",
+
+    "output directory": "~/research/monte_carlo/monte_carlo_fiber_quenching_D0.06",
+    "keep old results": false,
+
+    "rate type": "davoody",
+    "zshift [m]": [ 1.5e-9, 10e-9, 11 ],
+    "axis shift 1 [m]": [ -10e-9, 10e-9, 11 ],
+    "axis shift 2 [m]": [ -10e-9, 10e-9, 11 ],
+    "theta [degrees]": [ 0, 180, 21 ],
+    "temperature [kelvin]": 300,
+
+    "max hopping radius [m]": 20e-9,
+
+    "number of segments": 10,
+    "trim limits": {
+      "xlim": [ -1e-6, 1e-6 ],
+      "ylim": [ 0, 1e-7 ],
+      "zlim": [ -1e-6, 1e-6 ]
+    },
+
+    "exciton velocity [m/s]": 2,
+    "monte carlo time step": 1e-15,
+    "Number of particle in the simulation":2000,
+    "number of sections for injection region": 3,
+    "maximum time for kubo simulation [seconds]": 1e-12,
+    "number of particles for kubo simulation": 2000,
+    "density of quenching sites":  0.06
+  }
+}
