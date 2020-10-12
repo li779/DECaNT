@@ -30,6 +30,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::fstream orientation_file; // this is the output file that the orientation of cnt sections are written into.
 	std::fstream length_file; // this is the output file that the length of cnt sections are written into.
 	std::fstream chirality_file; // this is the output file that the chirality of cnt sections are written into.
+	std::fstream debug_file;
 	int number_of_saved_tubes; // this is the total number of cnts whos coordinates are saved into output file.
 	int number_of_cnt_output_files; // this is the number of output files that the cnt coordinates has been written into.
 
@@ -45,6 +46,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::vector<float> _section_length;
 	std::vector<float> _tube_length;
 	std::vector<std::vector<int>> _tube_chirality;
+	std::vector<int> _chirality_prob;
 	
 	std::vector<std::vector<btCollisionShape*>> _tube_section_collision_shapes; // first index determines the diameter, the second index determines the length of the section
 
@@ -70,6 +72,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	std::list<bundle> bundles;
 
 	btVector3 drop_coordinate(); // this method gives the appropriate coordinate for releasing the next tube
+	btVector3 drop_para_coordinate();
 
   public:
 	// constructor
@@ -97,12 +100,16 @@ struct cnt_mesh : public CommonRigidBodyBase
 		_half_Lz = container_half_width;
 		
 		int num_chirality = _json_prop["number of chirality"];
+		int probability = 0;
 		for (int i = 0;i<num_chirality;i++){
 			std::vector<int> chir;
 			chir.push_back(_json_prop["cnt chirality"][2*i]);
 			chir.push_back(_json_prop["cnt chirality"][2*i+1]);
 			_tube_chirality.push_back(chir);
 			_tube_diameter.push_back(calc_diam(chir[0],chir[1]));
+			int next_prob = _json_prop["chirality probability [percentage]"][i];
+			probability += next_prob;
+			_chirality_prob.push_back(probability);
 		}
 		//_tube_diameter.push_back(float(_json_prop["cnt diameter [nm]"]));
 
@@ -122,12 +129,12 @@ struct cnt_mesh : public CommonRigidBodyBase
 	}
 
 	// create all the btCollisionShape that are used to make tubes
-	void create_tube_colShapes(){
+	void create_tube_colShapes(double spacing){
 		btCollisionShape* colShape=nullptr;
 		for (float d: _tube_diameter){
 			_tube_section_collision_shapes.push_back(std::vector<btCollisionShape*>());
 			for (float l: _section_length){
-				colShape = new btCylinderShape(btVector3(d/2.0 ,l/2.0, d/2.0));
+				colShape = new btCylinderShape(btVector3((d+spacing)/2.0 ,l/2.0, (d+spacing)/2.0));
 				m_collisionShapes.push_back(colShape);
 				_tube_section_collision_shapes.back().push_back(colShape);
 			}
@@ -144,7 +151,7 @@ struct cnt_mesh : public CommonRigidBodyBase
 	inline void stepSimulation(float deltaTime) {
 		if (m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(deltaTime,10,deltaTime);
+			m_dynamicsWorld->stepSimulation(deltaTime,1,deltaTime);
 		}
 	}
 
@@ -164,17 +171,16 @@ struct cnt_mesh : public CommonRigidBodyBase
 	// this method adds a tube to the system.
 	void add_tube();
 
-	// this method adds a tube in the xz plane
-	void add_tube_in_xz();
-
 	// this method adds a bundle in the xz plane
-	void add_bundle_in_xz();
+	void add_bundle_in_xz(bool parallel);
 
 	// this method adds parallel tube like blinds in the xz plane
-	void add_parallel_tube_in_xz();
+	void add_single_tube_in_xz(bool parallel);
 
 	// this method creates an open top container for the cnts
-	void create_container();
+	void create_ground_plane();
+
+	void create_z_plane();
 
 	// gets the number of tubes in the simulation
 	inline int num_tubes() {
@@ -206,6 +212,28 @@ struct cnt_mesh : public CommonRigidBodyBase
 	};
 
 	void save_tubes(int number_of_unsaved_tubes);
+
+	float tube_pos(tube t){
+		btTransform trans;
+		int num_section = 0;
+		float avgY;
+		for (const auto& b : t.bodies) {
+			b->getMotionState()->getWorldTransform(trans);
+			avgY += trans.getOrigin().getY();
+			num_section++;
+		}
+		return avgY/(float)num_section;
+	}
+
+	void printtube(int tube_number){
+		int count = 0;
+		for (const auto& t : tubes) {
+			if(count == tube_number && t.isDynamic){
+				std::cout << std::showpos << std::scientific << "tube#" << tube_number << ": "<< tube_pos(t) << "\n\n"<< std::endl;
+			}
+			count++;
+		}
+	}
 
 };
 

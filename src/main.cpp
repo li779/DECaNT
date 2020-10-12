@@ -51,6 +51,9 @@ int main(int argc, char* argv[]) {
 	int number_of_bundles = j["number of bundles"];
         int number_of_steps = j["number_of_steps"];
         btScalar time_step = j["time_step"];
+	bool parallel = j["parallel"];
+	bool bundle = j["bundle"];
+	double spacing = j["cnt intertube spacing [nm]"];
 
 
 	// flag to let the graphic visualization happen
@@ -64,8 +67,10 @@ int main(int argc, char* argv[]) {
 
 	
 	example->initPhysics();
-	example->create_container(); //container size is set in input.json
-	example->create_tube_colShapes();
+	example->create_ground_plane(); //container size is set in input.json
+	if(parallel)
+		example->create_z_plane();
+	example->create_tube_colShapes(spacing);
 
 
 	// example->get_Ly();
@@ -78,6 +83,7 @@ int main(int argc, char* argv[]) {
 		btScalar dtSec = time_step;
 		// btScalar dtSec = 0.01;
 		example->stepSimulation(dtSec);
+		//example->printtube(2);
 
 		if (step_number % number_of_steps == 0) // add new tubes every couple of steps.
 		{	
@@ -86,20 +92,30 @@ int main(int argc, char* argv[]) {
 			// add this many cnt's at a time
 			for (int i=0; i<number_of_tubes_added_together; i++)
 			{
-				example->add_parallel_tube_in_xz();
+				if(bundle)
+					example->add_bundle_in_xz(parallel);
+				else 
+					example->add_single_tube_in_xz(parallel);
+				
 			}
 			
 			example->save_tubes(number_of_unsaved_tubes);
 			
-			example->freeze_bundles(number_of_active_bundles); // keep only this many of tubes active (for example 100) and freeze the rest of the tubes
-			
+			if(bundle)
+				example->freeze_bundles(number_of_active_bundles); // keep only this many of tubes active (for example 100) and freeze the rest of the tubes
+			else
+				example->freeze_tubes(number_of_active_bundles);
+				
 			example->remove_tubes(number_of_tubes_before_deletion); // keep only this many of tubes in the simulation (for example 400) and delete the rest of objects
 			
 			std::cout << "number of saved tubes: " << example->no_of_saved_tubes() << ",  height [nm]:" << example->read_Ly() << "      \r" << std::flush;
 			
 			
 		}
-	if(example->no_of_saved_tubes()/7 > number_of_bundles)
+	if(example->no_of_saved_tubes() > number_of_bundles)
+		break;
+
+	if ((example->read_Ly() > 19) && (example->no_of_saved_tubes() > 1000))
 		break;
 	}
 
