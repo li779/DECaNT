@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
 	bool parallel = j["parallel"];
 	bool bundle = j["bundle"];
 	double spacing = j["cnt intertube spacing [nm]"];
+	double thickness = j["cnt expected film thickness [nm]"];
 
 
 	// flag to let the graphic visualization happen
@@ -115,7 +116,7 @@ int main(int argc, char* argv[]) {
 	if(example->no_of_saved_tubes() > number_of_bundles)
 		break;
 
-	if ((example->read_Ly() > 19) && (example->no_of_saved_tubes() > 1000))
+	if ((example->read_Ly() > thickness) && (example->no_of_saved_tubes() > 1000))
 		break;
 	}
 
