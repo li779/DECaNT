@@ -1,76 +1,52 @@
 DECaNT
 =========================================
-Project Contributers: Y. C. Li, A. H. Davoody, S.W. Belling, A. J. Gabourie, and I. Knezevic
+### Project Contributers
+Y. C. Li, A. H. Davoody, S.W. Belling, A. J. Gabourie, and I. Knezevic
 
-Official implementation of [DECaNT: Simulation Tool for Diffusion of Excitons in Carbon Nanotube Films](https://arxiv.org/pdf/1703.05192.pdf). 
+Official implementation of [DECaNT: Simulation Tool for Diffusion of Excitons in Carbon Nanotube Films](https://arxiv.org/pdf/1703.05192.pdf). The work is based on project from former group member AmirHossein Davoody and Alexander J Gabourie. Initial commitment can be find here: [Mesh](https://github.com/amirhosseindavoody/carbon_nanotube_mesh), [Monte Carlo](https://github.com/amirhosseindavoody/cnt_film_monte_carlo).
 
-<img src="assets/discogan.png" width="600px">
+<p align="center"><img src="graphs/Figure6_simulation_schematic.png" width="400px"></p>
 
-Prerequisites
+Dependancy
 -------------
+This project is only support on linux or linux-like operating system. Some basic external library dependencies are follow:
    - Python 3
    - Armadillo
    - BulletPhysics
+### Armadillo
+Armadillo is a linear algebra library. Before installing armadillo, we need to make sure BLAS and LAPACK is installed. Installation:
 
+    $ sudo apt install libopenblas-dev liblapack-dev
+
+Then we are ready for installing Armadillo. There are two ways to approach: either go to [website](http://arma.sourceforge.net/download.html) to obtain tar ball or directly using package management:
+
+    $ sudo apt-get install libarmadillo-dev
+    
+### BulletPhysics
+BulletPhysics is open-source real-time physics simulation library. We use this library to simulate carbon nanotube mesh with different morphologies. Installation will need OpenGL library to vender the scene. Detailed instruction could refer to [old repo](https://github.com/amirhosseindavoody/carbon_nanotube_mesh/wiki)
+   
 Mesh Generation
 ----------------
-### CelebA
-Download CelebA dataset using
+### Code Structure
+The code structure is simple. There is only one class called cnt_mesh which will contain all the details about carbon nanotube: total length, segment length, tube chirality in arrays. Functions defined in this class will transfer desired carbon nanotube to rigid body and drop it at certain height. Main.cpp will act as a upper-level structure to set up and run BulletPhysics scene and also call functions in cnt_mesh to generate new tubes. The output file will recode the position, orientation and chirality of every segment of the tubes. More detailed explanation can be found [Here](https://github.com/amirhosseindavoody/carbon_nanotube_mesh).
 
-    $ python ./datasets/download.py celebA 
+After generating tubes, we need to post-process the output files with a python script. The python script is used to interpolate limited position data of each segment into a smooth curve which will represent actual curvy nanotube in real world. After that, the script will sample position points along each tube to be the position of scattering sites in monte carlo simulation.
 
-(Currently, the link for downloading [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) dataset is not available).
+### Run example
+First, direct inside folder and use Makefile to build the project.
 
-To train gender conversion,
+    $ cd mesh
+    $ make main
+    
+Then run the main.exe after setting up input.json
 
-    $ python ./discogan/image_translation.py --task_name='celebA' --style_A='Male'
+    $ main.exe input.json
 
-To train hair color conversion 
+Run the python script.
 
-    $ python ./discogan/image_translation.py --task_name='celebA' --style_A='Blond_Hair' --style_B='Black_Hair' --constraint='Male'
-
-### Handbags / Shoes
-Download Edges2Handbags dataset using 
-
-    $ python ./datasets/download.py edges2handbags
-
-Download Edges2Shoes dataset using 
-
-    $ python ./datasets/download.py edges2shoes
-
-To train Edges2Handbags,
-
-    $ python ./discogan/image_translation.py --task_name='edges2handbags'
-
-To train Edges2Shoes,
-
-    $ python ./discogan/image_translation.py --task_name='edges2shoes' 
-
-To train Handbags2Shoes,
-
-    $ python ./discogan/image_translation.py --task_name='Handbags2Shoes' --starting_rate=0.5
-
-### Facescrub
-Download Facescrub dataset using 
-
-    $ python ./datasets/download.py facescrub
-
-To train gender conversion,
-
-    $ python ./discogan/image_translation.py --task_name='facescrub'
-
-### Car, Face
-Download [3D car dataset](http://www.scottreed.info/files/nips2015-analogy-data.tar.gz) used in [Deep Visual Analogy-Making]( http://www-personal.umich.edu/~reedscot/nips2015.pdf), and [3D face dataset](http://faces.cs.unibas.ch/bfm/main.php?nav=1-2&id=downloads) into ./datasets folder and extract them.
-
-To train Car2Car translation,
-
-    $ python ./discogan/angle_pairing.py --task_name='car2car' 
-
-To train Car2Face translation,
-
-    $ python ./discogan/angle_pairing.py --task_name='car2face'
-
-Run script.sh in order to train a model using other datasaet, after uncommenting corresponding line.
+    $ cd python_script
+    $ python3 create_fine_mesh.py
+    
 
 Monte Carlo Simulation
 ----------------
@@ -78,3 +54,14 @@ Monte Carlo Simulation
 Main Code is in monte_carlo folder. The whole simulation is divided into three major object: Simulation itself, exciton and scattering sites. Each object has its class with detailed attributions and methods. Simulation object is the top-layer client that will create exciton and scattering sites based on simulation metrics. The output file contains displacement and position of excitons at each time step.
 
 There are complementary code in exciton transfer and helper folder. In exciton transfer folder, codes are used in calculating Carbon Nanotube bandstructure and resonant exciton transfering. Functions will be called by Monte Carlo Simulation code to generate scattering table.
+
+### Run example
+First, direct inside folder and use Makefile to build the project.
+
+    $ cd montecarlo
+    $ make main
+    
+Then run the main.exe after setting up input.json
+
+    $ main.exe input.json
+
