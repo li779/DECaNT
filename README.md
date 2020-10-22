@@ -1,7 +1,7 @@
 DECaNT
 =========================================
-### Project Contributers
-Y. C. Li, A. H. Davoody, S.W. Belling, A. J. Gabourie, and I. Knezevic
+### Project Contributors
+Y. C. Li, A. H. Davoody, A. J. Gabourie, S.W. Belling, and I. Knezevic
 
 Official implementation of [DECaNT: Simulation Tool for Diffusion of Excitons in Carbon Nanotube Films]. This project grew out of the work by former group members Amirhossein Davoody and Alexander J Gabourie. Initial project can be find here: [Mesh](https://github.com/amirhosseindavoody/carbon_nanotube_mesh), [Monte Carlo](https://github.com/amirhosseindavoody/cnt_film_monte_carlo).
 
