@@ -9,7 +9,7 @@ Official implementation of [DECaNT: Simulation Tool for Diffusion of Excitons in
 
 Dependency
 -------------
-This project is intented to run on linux or linux-like operating system. Following external libraries are required:
+This project is intented to run on linux or linux-like operating systems. The following external libraries are required:
    - Python 3
    - Armadillo
    - BulletPhysics
@@ -18,12 +18,12 @@ Armadillo is a linear algebra library. Before installing armadillo, we need to m
 
     $ sudo apt install libopenblas-dev liblapack-dev
 
-Then we are ready to installing Armadillo. There are two approaches: either go to the [website](http://arma.sourceforge.net/download.html) to obtain the tar ball or, directly using package management:
+Then we are ready to install Armadillo. There are two approaches: either go to the [website](http://arma.sourceforge.net/download.html) to obtain the tar ball or, directly using package management:
 
     $ sudo apt-get install libarmadillo-dev
     
 ### BulletPhysics
-BulletPhysics is an open-source real-time physics simulation library. We use this library to generate carbon nanotube mesh with different morphologies. Installation requires the OpenGL library to render the scene. Detailed instructions could at the [old repo](https://github.com/amirhosseindavoody/carbon_nanotube_mesh/wiki)
+BulletPhysics is an open-source real-time physics simulation library. We use this library to generate carbon nanotube meshes with different morphologies. Installation requires the OpenGL library to render the scene. Detailed instructions can be found at the [old repo](https://github.com/amirhosseindavoody/carbon_nanotube_mesh/wiki)
    
 Mesh Generation
 ----------------
