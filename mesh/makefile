@@ -3,11 +3,11 @@ CC=g++
 OPT = -O3 -Wall
 # OPT = -g -Wall
 
-BULLET = /home/amirhossein/Downloads/bullet3-master
+BULLET = ../bullet3-master
 
-CFLAGS = -I$(BULLET)/src/ -std=c++17
+CFLAGS = -I $(BULLET)/src/ -std=c++17 -static
 
-LFLAGS =  -std=c++17
+LFLAGS =  -std=c++17 -static
 # LFLAGS += -pthread -lstdc++fs -lGL -lGLU
 LFLAGS += -pthread -lstdc++fs
 
