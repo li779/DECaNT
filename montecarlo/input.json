@@ -10,9 +10,10 @@
     },
 
   "exciton monte carlo": {
-    "mesh input directory": "~/research/mesh/cnt_mesh_fiber_random_bundle_S0.2",
+    "mesh input directory": "~/research/mesh/cnt_mesh_fiber_remake_parallel_single_S0.8",
 
-    "output directory": "~/research/monte_carlo/monte_carlo_fiber_quenching_D0.06",
+    "scatter table directory": "~/research/monte_carlo/scatter_table",
+    "output directory": "~/research/monte_carlo/monte_carlo_fiber_remake_parallel_single_S0.8",
     "keep old results": false,
 
     "rate type": "davoody",
@@ -23,6 +24,7 @@
     "temperature [kelvin]": 300,
 
     "max hopping radius [m]": 20e-9,
+    "max dissolving radius [m]": 2e-9,
 
     "number of segments": 10,
     "trim limits": {
@@ -37,6 +39,6 @@
     "number of sections for injection region": 3,
     "maximum time for kubo simulation [seconds]": 1e-12,
     "number of particles for kubo simulation": 2000,
-    "density of quenching sites":  0.06
+    "density of quenching sites":  0.00
   }
 }
