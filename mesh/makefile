@@ -7,7 +7,7 @@ BULLET = ../bullet3-master
 
 CFLAGS = -I $(BULLET)/src/ -std=c++17 -static
 
-LFLAGS =  -std=c++17 -static
+LFLAGS =  -std=c++17 
 # LFLAGS += -pthread -lstdc++fs -lGL -lGLU
 LFLAGS += -pthread -lstdc++fs
 

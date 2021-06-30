@@ -18,9 +18,15 @@
 #include "../misc_files/CommonInterfaces/CommonRigidBodyBase.h"
 
 void cnt_mesh::initPhysics() {
+	#ifdef VISUAL
+		m_guiHelper->setUpAxis(1);
 
-	createEmptyDynamicsWorld();
+		createEmptyDynamicsWorld();
 
+		m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+	#else
+		createEmptyDynamicsWorld();
+	#endif
 
 	if (m_dynamicsWorld->getDebugDrawer())
 		m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
@@ -46,6 +52,9 @@ void cnt_mesh::create_ground_plane() {
 		btScalar mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
 	}
+	#ifdef VISUAL
+		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	#endif
 }
 
 void cnt_mesh::create_z_plane() {
@@ -101,7 +110,9 @@ void cnt_mesh::create_z_plane() {
 	//  	createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1)); // I think the last input is not used for anything. On paper it is supposed to be the collor
 	//  }
 
-	
+	#ifdef VISUAL
+		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	#endif
 }
 
 // make tubes static in the simulation and only leave number_of_active_tubes as dynamic in the simulation.
@@ -222,6 +233,9 @@ void cnt_mesh::resetCamera() {
 	float pitch = -35;
 	float yaw = 52;
 	float targetPos[3] = { 0,0.46,0 };
+	#ifdef VISUAL
+		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+	#endif
 }
 
 // save properties of the input tube
@@ -420,7 +434,10 @@ void cnt_mesh::add_tube() {
 	//   // my_tube.constraints.push_back(centerSpring);
 	// }
 
-
+	#ifdef VISUAL
+		// generate the graphical representation of the object
+		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	#endif
 	
 }
 
@@ -691,7 +708,10 @@ void cnt_mesh::add_bundle_in_xz(bool parallel) {
 	}
 
 
-
+	#ifdef VISUAL
+		// generate the graphical representation of the object
+		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	#endif
 
 }
 
@@ -801,7 +821,10 @@ void cnt_mesh::add_single_tube_in_xz(bool parallel) {
 		my_tube.constraints.push_back(centerSpring);
 	}
 
-
+	#ifdef VISUAL
+		// generate the graphical representation of the object
+		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	#endif
 
 }
 

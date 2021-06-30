@@ -7,6 +7,9 @@
 #include "../misc_files/CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../misc_files/Utils/b3Clock.h"
 
+#ifdef VISUAL
+	#include "../misc_files/OpenGLWindow/SimpleOpenGL3App.h"
+#endif
 #include "../misc_files/ExampleBrowser/OpenGLGuiHelper.h"
 
 #include "../lib/json.hpp"
@@ -21,7 +24,33 @@
 cnt_mesh*    example;
 int gSharedMemoryKey=-1;
 
+#ifdef VISUAL
+b3MouseMoveCallback prevMouseMoveCallback = 0;
+static void OnMouseMove( float x, float y)
+{
+	bool handled = false; 
+	handled = example->mouseMoveCallback(x,y); 	 
+	if (!handled)
+	{
+		if (prevMouseMoveCallback)
+			prevMouseMoveCallback (x,y);
+	}
+}
+
+b3MouseButtonCallback prevMouseButtonCallback  = 0;
+static void OnMouseDown(int button, int state, float x, float y) {
+	bool handled = false;
+
+	handled = example->mouseButtonCallback(button, state, x,y); 
+	if (!handled)
+	{
+		if (prevMouseButtonCallback )
+			prevMouseButtonCallback (button,state,x,y);
+	}
+}
+#endif
 //*************************************************************************************************
+
 
 int main(int argc, char* argv[]) {
 
@@ -59,8 +88,28 @@ int main(int argc, char* argv[]) {
 	// flag to let the graphic visualization happen
 	bool visualize = j["visualize"];
 
-	// CommonExampleInterface* example;
-	example = new cnt_mesh(NULL, j);	
+	#ifdef VISUAL
+	SimpleOpenGL3App* app;
+	GUIHelperInterface* gui;
+	// SimpleOpenGL3App is a child of CommonGraphicsApp virtual class.
+	app = new SimpleOpenGL3App("carbon nanotube mesh",1024,768,true);
+
+	prevMouseButtonCallback = app->m_window->getMouseButtonCallback();
+	prevMouseMoveCallback = app->m_window->getMouseMoveCallback();
+
+	app->m_window->setMouseButtonCallback((b3MouseButtonCallback)OnMouseDown);
+	app->m_window->setMouseMoveCallback((b3MouseMoveCallback)OnMouseMove);
+	
+	gui = new OpenGLGuiHelper(app,false); // the second argument is a dummy one
+	// gui = new DummyGUIHelper();
+	CommonExampleOptions options(gui);
+	#endif
+	#ifdef VISUAL
+		// CommonExampleInterface* example;
+		example = new cnt_mesh(options.m_guiHelper, j);
+	#else
+		example = new cnt_mesh(NULL, j);
+	#endif
 
 	example->parse_json_prop();
 	example->save_json_properties(j);
@@ -75,7 +124,12 @@ int main(int argc, char* argv[]) {
 
 	// example->get_Ly();
 	// example->add_tube_in_xz();
-	
+	#ifdef VISUAL
+	if (visualize) {
+		example->resetCamera();
+	}
+	#endif
+
 	int step_number = 0;
 	while(true)
 	{
@@ -110,6 +164,22 @@ int main(int argc, char* argv[]) {
 			
 			std::cout << "number of saved tubes: " << example->no_of_saved_tubes() << ",  height [nm]:" << example->read_Ly() << "      \r" << std::flush;
 			
+			#ifdef VISUAL
+			if (visualize)
+			{
+				app->m_instancingRenderer->init();
+				app->m_instancingRenderer->updateCamera(app->getUpAxis());
+				example->renderScene();
+				
+				// draw some grids in the space
+				DrawGridData dg;
+				dg.upAxis = app->getUpAxis();
+				app->drawGrid(dg);
+				
+				app->swapBuffer();
+
+			}
+			#endif
 			
 		}
 	if(example->no_of_saved_tubes() > number_of_bundles)
@@ -119,7 +189,24 @@ int main(int argc, char* argv[]) {
 		break;
 	}
 
-	
+	#ifdef VISUAL
+	// if we did not visualize the simulation all along now visualize it one last time.
+	if (not visualize)
+	{
+		example->resetCamera();
+		app->m_instancingRenderer->init();
+		app->m_instancingRenderer->updateCamera(app->getUpAxis());
+		example->renderScene();
+		
+		// draw some grids in the space
+		DrawGridData dg;
+		dg.upAxis = app->getUpAxis();
+		app->drawGrid(dg);
+		
+		app->swapBuffer();
+
+	}
+	#endif
 	// print the end time and the runtime
 	std::clock_t end = std::clock();
 	std::time_t end_time = std::time(nullptr);
@@ -129,6 +216,9 @@ int main(int argc, char* argv[]) {
 
 	example->exitPhysics();
 	delete example;
+	#ifdef VISUAL
+		delete app;
+	#endif
 	return 0;
 }
 
