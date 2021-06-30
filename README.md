@@ -51,10 +51,11 @@ First, open mesh folder and modify makefile line 8 from:
     $ CFLAGS = -I $(BULLET)/src/ -std=c++17 -static
     
 to: 
+
     $ CFLAGS = -I $(BULLET)/src/ -std=c++17 -DVISUAL
     
 Then, modify input.json's "visualize" field to be "true".
-Now, the program will generate an additional window displaying current simulation scene. **Note: this functionality will only work at linux platforms with X11 function support. If the user is using Windows linux subsystem, one can access the functionality with platforms like mobaxterm**
+Now, the program will generate an additional window displaying current simulation scene. **Note: this functionality will only work at linux platforms with X11 function support. If the user is using Windows linux subsystem, one can access the functionality with platforms like mobaxterm.**
 
 Monte Carlo Simulation
 ----------------
