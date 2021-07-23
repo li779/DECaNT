@@ -76,3 +76,6 @@ Then, modify input.json as needed, and run main.exe
 
     $ main.exe input.json
 
+Introduction Video
+----------------
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/lAowb9l5AuY/0.jpg)](https://www.youtube.com/watch?v=lAowb9l5AuY)
